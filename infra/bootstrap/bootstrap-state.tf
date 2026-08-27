@@ -30,3 +30,14 @@ resource "aws_s3_bucket_public_access_block" "states_blocking" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "state_sse" {
+  for_each = var.s3_buckets.bucket_settings
+  bucket   = aws_s3_bucket.states[each.key].id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = each.value.sse_algorithm
+    }
+  }
+}

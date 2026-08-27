@@ -7,6 +7,7 @@ variable "s3_buckets" {
       force_destroy = optional(bool, false)
       description   = optional(string)
       versioning    = optional(bool, true)
+      sse_algorithm = optional(string, "AES256")
     }))
   })
 }
