@@ -6,6 +6,7 @@ variable "s3_buckets" {
       name          = string
       force_destroy = optional(bool, false)
       description   = optional(string)
+      versioning    = optional(bool, true)
     }))
   })
 }
