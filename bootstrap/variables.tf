@@ -42,3 +42,11 @@ variable "ecr_settings" {
   })
 
 }
+
+variable "iam_roles" {
+  description = "IAM role variables for EKS GitHub Pipeline"
+  type = map(object({
+    description = optional(string, "")
+    sub_value   = string
+  }))
+}
