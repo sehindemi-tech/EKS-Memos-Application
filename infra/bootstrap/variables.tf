@@ -24,3 +24,21 @@ variable "project_settings" {
 
   default = {}
 }
+
+variable "ecr_settings" {
+  description = "The ECR repository for memo app"
+  type = object({
+    image_tag_mutability = optional(string, "IMMUTABLE")
+    force_delete         = optional(bool, true)
+
+    image_scanning_configuration = optional(object({
+      scan_on_push = optional(bool, true)
+    }), {})
+
+    encryption_configuration = optional(object({
+      encryption_type = optional(string, "AES256")
+    }), {})
+
+  })
+
+}

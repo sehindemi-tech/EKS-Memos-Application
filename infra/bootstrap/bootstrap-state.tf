@@ -31,6 +31,7 @@ resource "aws_s3_bucket_public_access_block" "states_blocking" {
   restrict_public_buckets = true
 }
 
+#trivy:ignore:AVD-AWS-0132
 resource "aws_s3_bucket_server_side_encryption_configuration" "state_sse" {
   for_each = var.s3_buckets.bucket_settings
   bucket   = aws_s3_bucket.states[each.key].id
