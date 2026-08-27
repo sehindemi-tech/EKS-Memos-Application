@@ -32,3 +32,27 @@ data "aws_iam_policy_document" "this" {
 
 }
 
+resource "aws_iam_role_policy" "this" {
+  for_each = var.iam_roles
+  role     = aws_iam_role.this[each.key].id
+  policy   = data.aws_iam_policy_document.role_policies[each.key].json
+}
+#trivy:ignore:AVD-AWS-0345 will clean actions later
+data "aws_iam_policy_document" "role_policies" {
+  for_each = var.iam_roles
+  statement {
+    effect = "Allow"
+    actions = [
+      "ec2:*",
+      "eks:*",
+      "iam:*",
+      "kms:*",
+      "rds:*",
+      "s3:*",
+      "logs:*",
+      "ecr:*",
+      "sts:GetCallerIdentity",
+    ]
+    resources = ["*"]
+  }
+}

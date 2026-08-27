@@ -27,6 +27,7 @@ variable "project_settings" {
 
 variable "ecr_settings" {
   description = "The ECR repository for memo app"
+
   type = object({
     image_tag_mutability = optional(string, "IMMUTABLE")
     force_delete         = optional(bool, true)
@@ -45,6 +46,7 @@ variable "ecr_settings" {
 
 variable "iam_roles" {
   description = "IAM role variables for EKS GitHub Pipeline"
+
   type = map(object({
     description = optional(string, "")
     sub_value   = string
