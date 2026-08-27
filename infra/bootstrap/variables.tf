@@ -1,5 +1,6 @@
 variable "s3_buckets" {
   description = "S3 Bucket settings"
+
   type = object({
     bucket_settings = map(object({
       name          = string
@@ -11,6 +12,7 @@ variable "s3_buckets" {
 
 variable "project_settings" {
   description = "The Default setting for our EKS Memo Project"
+
   type = object({
     aws_region   = optional(string, "eu-west-2")
     org          = optional(string, "sehindemi-tech")
