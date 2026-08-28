@@ -14,3 +14,41 @@ resource "aws_ecr_repository" "this" {
 }
 
 
+resource "aws_ecr_lifecycle_policy" "this" {
+  repository = aws_ecr_repository.this.name
+  policy     = data.aws_ecr_lifecycle_policy_document.this.json
+}
+
+data "aws_ecr_lifecycle_policy_document" "this" {
+  rule {
+    priority    = 1
+    description = "Expire untagged images older than 5 days"
+
+    selection {
+      tag_status   = "untagged"
+      count_type   = "sinceImagePushed"
+      count_unit   = "days"
+      count_number = 7
+    }
+
+    action {
+      type = "expire"
+    }
+  }
+
+  rule {
+    priority    = 2
+    description = "Keep last 10 tagged images"
+
+    selection {
+      tag_status       = "tagged"
+      tag_pattern_list = ["*"]
+      count_type       = "imageCountMoreThan"
+      count_number     = 10
+    }
+
+    action {
+      type = "expire"
+    }
+  }
+}
