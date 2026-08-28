@@ -1,4 +1,7 @@
+title = "gitleaks config"
+
 [[allowlists]]
+description = "Vendored third-party source, not our secrets to remediate as these are false positives"
 paths = [
   "app/memos/server/auth/token_test.go:generic-api-key:173",
   "app/memos/server/auth/token_test.go:generic-api-key:180",
