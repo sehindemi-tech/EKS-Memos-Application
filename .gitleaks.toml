@@ -1,0 +1,10 @@
+[[allowlists]]
+paths = [
+  "app/memos/server/auth/token_test.go:generic-api-key:173",
+  "app/memos/server/auth/token_test.go:generic-api-key:180",
+  "app/memos/server/auth/token_test.go:generic-api-key:187",
+  "app/memos/server/auth/token_test.go:generic-api-key:188",
+  "app/memos/server/router/mcp/evals/README.md:curl-auth-header:52",
+  "app/memos/store/seed/sqlite/01__dump.sql:generic-api-key:205",
+  "app/memos/web/src/components/Settings/AccessTokenSection.tsx:curl-auth-header:23",
+]

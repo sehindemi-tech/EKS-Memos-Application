@@ -1,0 +1,174 @@
+import { uniqBy } from "lodash-es";
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+
+export type FilterFactor =
+  | "tagSearch"
+  | "visibility"
+  | "contentSearch"
+  | "displayTime"
+  | "pinned"
+  | "property.hasLink"
+  | "property.hasTaskList"
+  | "property.hasCode"
+  | "property.hasLocation";
+
+export interface MemoFilter {
+  factor: FilterFactor;
+  value: string;
+}
+
+export const getMemoFilterKey = (filter: MemoFilter): string => `${filter.factor}:${filter.value}`;
+
+export const parseFilterQuery = (query: string | null): MemoFilter[] => {
+  if (!query) return [];
+  try {
+    return query.split(",").map((filterStr) => {
+      const separatorIndex = filterStr.indexOf(":");
+      const factor = separatorIndex === -1 ? filterStr : filterStr.slice(0, separatorIndex);
+      const value = separatorIndex === -1 ? "" : filterStr.slice(separatorIndex + 1);
+      return {
+        factor: factor as FilterFactor,
+        value: decodeURIComponent(value || ""),
+      };
+    });
+  } catch {
+    return [];
+  }
+};
+
+export const stringifyFilters = (filters: MemoFilter[]): string => {
+  return filters.map((filter) => `${filter.factor}:${encodeURIComponent(filter.value)}`).join(",");
+};
+
+export const replaceFiltersByFactor = (filters: MemoFilter[], factor: FilterFactor, replacements: MemoFilter[]): MemoFilter[] => [
+  ...filters.filter((filter) => filter.factor !== factor),
+  ...replacements,
+];
+
+interface MemoFilterContextValue {
+  filters: MemoFilter[];
+  memoView: string | undefined;
+  hasActiveFilters: boolean;
+  getFiltersByFactor: (factor: FilterFactor) => MemoFilter[];
+  setFilters: (filters: MemoFilter[]) => void;
+  addFilter: (filter: MemoFilter) => void;
+  removeFilter: (predicate: (f: MemoFilter) => boolean) => void;
+  removeFiltersByFactor: (factor: FilterFactor) => void;
+  clearAllFilters: () => void;
+  setMemoView: (memoView?: string) => void;
+  hasFilter: (filter: MemoFilter) => boolean;
+}
+
+const MemoFilterContext = createContext<MemoFilterContextValue | null>(null);
+
+export function MemoFilterProvider({ children }: { children: ReactNode }) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const lastSyncedUrlRef = useRef("");
+  const lastSyncedStoreRef = useRef("");
+
+  // Initialize from URL
+  const [filters, setFiltersState] = useState<MemoFilter[]>(() => {
+    return parseFilterQuery(searchParams.get("filter"));
+  });
+  const [memoView, setMemoViewState] = useState<string | undefined>(undefined);
+
+  // Sync URL to state when URL changes externally
+  useEffect(() => {
+    const filterParam = searchParams.get("filter") || "";
+    if (filterParam !== lastSyncedUrlRef.current) {
+      lastSyncedUrlRef.current = filterParam;
+      const newFilters = parseFilterQuery(filterParam);
+      setFiltersState(newFilters);
+      lastSyncedStoreRef.current = stringifyFilters(newFilters);
+    }
+  }, [searchParams]);
+
+  // Sync state to URL when state changes
+  useEffect(() => {
+    const storeString = stringifyFilters(filters);
+    if (storeString !== lastSyncedStoreRef.current && storeString !== lastSyncedUrlRef.current) {
+      lastSyncedStoreRef.current = storeString;
+      const newParams = new URLSearchParams(searchParams);
+      if (filters.length > 0) {
+        newParams.set("filter", storeString);
+      } else {
+        newParams.delete("filter");
+      }
+      setSearchParams(newParams, { replace: true });
+      lastSyncedUrlRef.current = filters.length > 0 ? storeString : "";
+    }
+  }, [filters, searchParams, setSearchParams]);
+
+  const getFiltersByFactor = useCallback((factor: FilterFactor) => filters.filter((f) => f.factor === factor), [filters]);
+
+  const setFilters = useCallback((newFilters: MemoFilter[]) => {
+    setFiltersState(newFilters);
+  }, []);
+
+  const addFilter = useCallback((filter: MemoFilter) => {
+    setFiltersState((prev) => uniqBy([...prev, filter], getMemoFilterKey));
+  }, []);
+
+  const removeFilter = useCallback((predicate: (f: MemoFilter) => boolean) => {
+    setFiltersState((prev) => prev.filter((f) => !predicate(f)));
+  }, []);
+
+  const removeFiltersByFactor = useCallback((factor: FilterFactor) => {
+    setFiltersState((prev) => prev.filter((f) => f.factor !== factor));
+  }, []);
+
+  const clearAllFilters = useCallback(() => {
+    setFiltersState([]);
+    setMemoViewState(undefined);
+  }, []);
+
+  const setMemoView = useCallback((newMemoView?: string) => {
+    setMemoViewState(newMemoView);
+  }, []);
+
+  const hasFilter = useCallback((filter: MemoFilter) => filters.some((f) => getMemoFilterKey(f) === getMemoFilterKey(filter)), [filters]);
+
+  const hasActiveFilters = filters.length > 0 || memoView !== undefined;
+  const value = useMemo(
+    () => ({
+      filters,
+      memoView,
+      hasActiveFilters,
+      getFiltersByFactor,
+      setFilters,
+      addFilter,
+      removeFilter,
+      removeFiltersByFactor,
+      clearAllFilters,
+      setMemoView,
+      hasFilter,
+    }),
+    [
+      filters,
+      memoView,
+      hasActiveFilters,
+      getFiltersByFactor,
+      setFilters,
+      addFilter,
+      removeFilter,
+      removeFiltersByFactor,
+      clearAllFilters,
+      setMemoView,
+      hasFilter,
+    ],
+  );
+
+  return <MemoFilterContext.Provider value={value}>{children}</MemoFilterContext.Provider>;
+}
+
+export function useMemoFilterContext() {
+  const context = useContext(MemoFilterContext);
+  if (!context) {
+    throw new Error("useMemoFilterContext must be used within MemoFilterProvider");
+  }
+  return context;
+}
+
+// Alias for backwards compatibility during migration
+export const useMemoFilter = useMemoFilterContext;

@@ -1,0 +1,24 @@
+# Generated output
+/build/
+/bin/
+/tmp/
+/memos
+/memos.exe
+coverage.out
+# Frontend bundles: web/dist from `pnpm build`, and
+# server/router/frontend/dist from `pnpm release`, which go:embed bakes
+# into the binary.
+dist/
+
+# Local development files
+.env
+.env.*
+!.env.example
+.DS_Store
+.idea/
+.vscode/
+/.worktrees/
+# Project-scoped pnpm store, created under whichever directory pnpm runs in
+# when --config.store-dir is set without an existing store; it contains a
+# symlink back to the workspace.
+.pnpm-store/

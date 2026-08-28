@@ -1,0 +1,7 @@
+# Generated output
+node_modules/
+coverage/
+/src/types/proto/store/
+
+# Machine-local overrides (Vite convention: .env.local, .env.*.local, ...)
+*.local
