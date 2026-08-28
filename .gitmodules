@@ -1,3 +1,3 @@
-[submodule "bootstrap/app/memos"]
-	path = bootstrap/app/memos
+[submodule "app/memos"]
+	path = app/memos
 	url = git@github.com:usememos/memos.git
