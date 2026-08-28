@@ -32,7 +32,8 @@ repos:
           - --args=--severity CRITICAL,HIGH
           - --args=--exit-code 1
           - --args=--tf-vars=__GIT_WORKING_DIR__/bootstrap/terraform.tfvars
-          - --args=--tf-vars=__GIT_WORKING_DIR__/infra/env/dev/terraform.tfvars
+          - --args=--tf-vars=__GIT_WORKING_DIR__/infra/terraform/env/dev/terraform.tfvars
+
 
       - id: terraform_validate
         args:
