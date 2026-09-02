@@ -27,3 +27,8 @@ variable "subnet_settings" {
     is_public               = optional(bool)
   }))
 }
+
+variable "eip_domain" {
+  description = "VPC domain configuration for Elastic IP"
+  type        = string
+}

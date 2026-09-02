@@ -7,4 +7,5 @@ module "networking" {
   source          = "../../modules/networking"
   vpc_settings    = var.vpc_settings
   subnet_settings = var.subnet_settings
+  eip_domain      = var.eip_domain
 }
