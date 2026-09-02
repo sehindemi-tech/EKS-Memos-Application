@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: memos
+      POSTGRES_PASSWORD: testpassword
+      POSTGRES_DB: memos_test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U memos -d memos_test"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  memos:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      MEMOS_DRIVER: postgres
+      MEMOS_DSN: "postgres://memos:testpassword@postgres:5432/memos_test?sslmode=disable"
+    ports:
+      - "5230:5230"
+    depends_on:
+      postgres:
+        condition: service_healthy
