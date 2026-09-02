@@ -37,3 +37,12 @@ variable "eip_domain" {
   description = "VPC domain configuration for Elastic IP"
   type        = string
 }
+
+variable "nat_gateway_settings" {
+  description = "Nat Gateway settings for the EKS Memo Application"
+
+  type = object({
+    availability_mode = string
+    connectivity_type = string
+  })
+}
