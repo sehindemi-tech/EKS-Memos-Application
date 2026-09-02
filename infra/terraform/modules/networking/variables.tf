@@ -38,3 +38,17 @@ variable "eip_domain" {
   type        = string
 }
 
+variable "gateway_endpoint_settings" {
+  description = "AWS service names for Gateway VPC endpoints (S3, DynamoDB)"
+  type        = set(string)
+}
+
+variable "interface_endpoint_settings" {
+  description = "AWS service names for Interface VPC endpoints"
+  type        = set(string)
+}
+
+variable "interface_endpoint_sg_id" {
+  description = "Interface endpoint Security Group ID"
+  type        = string
+}

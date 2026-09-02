@@ -47,3 +47,34 @@ variable "eip_domain" {
   type        = string
 }
 
+variable "gateway_endpoint_settings" {
+  description = "AWS service names for Gateway VPC endpoints (S3, DynamoDB)"
+  type        = set(string)
+}
+
+variable "interface_endpoint_settings" {
+  description = "AWS service names for Interface VPC endpoints"
+  type        = set(string)
+}
+
+
+################Security Module
+### VPC Endpoint Security Groups
+variable "vpc_ingress_interface_endpoint_sg" {
+  description = "VPC endpoint Security group for EKS memo application"
+  type = object({
+    ingress_description = string
+    ip_protocol         = string
+    from_port           = number
+    to_port             = number
+  })
+}
+
+variable "vpc_egress_interface_endpoint_sg" {
+  description = "VPC endpoint Security group for EKS memo application"
+  type = object({
+    egress_description = string
+    ip_protocol        = string
+    cidr_ipv4          = string
+  })
+}
