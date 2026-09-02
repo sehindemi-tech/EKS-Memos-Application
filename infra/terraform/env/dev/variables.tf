@@ -78,3 +78,14 @@ variable "vpc_egress_interface_endpoint_sg" {
     cidr_ipv4          = string
   })
 }
+
+###logging
+### CloudWatch Log Group for VPC Flow Logs
+variable "cloud_watch" {
+  description = "CloudWatch log group settings"
+  type = object({
+    name              = string
+    log_group_class   = string
+    retention_in_days = number
+  })
+}

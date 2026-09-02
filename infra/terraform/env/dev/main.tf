@@ -21,5 +21,10 @@ module "security" {
   vpc_ingress_interface_endpoint_sg = var.vpc_ingress_interface_endpoint_sg
   vpc_egress_interface_endpoint_sg  = var.vpc_egress_interface_endpoint_sg
   vpc_id                            = module.networking.vpc_id
+}
 
+module "logging" {
+  source      = "../../modules/logging"
+  cloud_watch = var.cloud_watch
+  vpc_id      = module.networking.vpc_id
 }

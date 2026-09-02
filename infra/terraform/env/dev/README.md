@@ -16,6 +16,7 @@ No providers.
 
 | Name | Source | Version |
 |------|--------|---------|
+| <a name="module_logging"></a> [logging](#module\_logging) | ../../modules/logging | n/a |
 | <a name="module_networking"></a> [networking](#module\_networking) | ../../modules/networking | n/a |
 | <a name="module_route_53"></a> [route\_53](#module\_route\_53) | ../../modules/route-53 | n/a |
 | <a name="module_security"></a> [security](#module\_security) | ../../modules/security | n/a |
@@ -28,6 +29,7 @@ No resources.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_cloud_watch"></a> [cloud\_watch](#input\_cloud\_watch) | CloudWatch log group settings | <pre>object({<br/>    name              = string<br/>    log_group_class   = string<br/>    retention_in_days = number<br/>  })</pre> | n/a | yes |
 | <a name="input_eip_domain"></a> [eip\_domain](#input\_eip\_domain) | VPC domain configuration for Elastic IP | `string` | n/a | yes |
 | <a name="input_gateway_endpoint_settings"></a> [gateway\_endpoint\_settings](#input\_gateway\_endpoint\_settings) | AWS service names for Gateway VPC endpoints (S3, DynamoDB) | `set(string)` | n/a | yes |
 | <a name="input_interface_endpoint_settings"></a> [interface\_endpoint\_settings](#input\_interface\_endpoint\_settings) | AWS service names for Interface VPC endpoints | `set(string)` | n/a | yes |
