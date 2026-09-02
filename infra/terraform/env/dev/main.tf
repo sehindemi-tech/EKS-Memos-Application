@@ -4,8 +4,10 @@ module "route_53" {
 }
 
 module "networking" {
-  source          = "../../modules/networking"
-  vpc_settings    = var.vpc_settings
-  subnet_settings = var.subnet_settings
-  eip_domain      = var.eip_domain
+  source           = "../../modules/networking"
+  vpc_settings     = var.vpc_settings
+  subnet_settings  = var.subnet_settings
+  eip_domain       = var.eip_domain
+  project_settings = var.project_settings
+
 }
