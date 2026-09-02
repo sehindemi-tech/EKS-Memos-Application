@@ -16,3 +16,14 @@ variable "vpc_settings" {
     enable_dns_support   = optional(bool)
   })
 }
+
+variable "subnet_settings" {
+  description = "Public & private VPC subnet definitions; is_public drives public IP assignment"
+
+  type = map(object({
+    availability_zone       = optional(string)
+    cidr_block              = optional(string)
+    map_public_ip_on_launch = optional(bool)
+    is_public               = optional(bool)
+  }))
+}

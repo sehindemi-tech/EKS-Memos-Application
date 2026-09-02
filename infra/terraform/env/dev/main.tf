@@ -4,7 +4,7 @@ module "route_53" {
 }
 
 module "networking" {
-  source       = "../../modules/networking"
-  vpc_settings = var.vpc_settings
-
+  source          = "../../modules/networking"
+  vpc_settings    = var.vpc_settings
+  subnet_settings = var.subnet_settings
 }
