@@ -16,6 +16,7 @@ No providers.
 
 | Name | Source | Version |
 |------|--------|---------|
+| <a name="module_eks"></a> [eks](#module\_eks) | ../../modules/eks | n/a |
 | <a name="module_logging"></a> [logging](#module\_logging) | ../../modules/logging | n/a |
 | <a name="module_networking"></a> [networking](#module\_networking) | ../../modules/networking | n/a |
 | <a name="module_route_53"></a> [route\_53](#module\_route\_53) | ../../modules/route-53 | n/a |
@@ -32,6 +33,7 @@ No resources.
 | <a name="input_bootstrap_role_arns"></a> [bootstrap\_role\_arns](#input\_bootstrap\_role\_arns) | IAM roles ARN from bootstrap | `list(string)` | n/a | yes |
 | <a name="input_cloud_watch"></a> [cloud\_watch](#input\_cloud\_watch) | CloudWatch log group settings | <pre>object({<br/>    name              = string<br/>    log_group_class   = string<br/>    retention_in_days = number<br/>  })</pre> | n/a | yes |
 | <a name="input_eip_domain"></a> [eip\_domain](#input\_eip\_domain) | VPC domain configuration for Elastic IP | `string` | n/a | yes |
+| <a name="input_eks_cluster_settings"></a> [eks\_cluster\_settings](#input\_eks\_cluster\_settings) | EKS cluster settings for the EKS memo Application | <pre>object({<br/>    version                       = string<br/>    deletion_protection           = bool<br/>    enabled_cluster_log_type      = list(string)<br/>    bootstrap_self_managed_addons = bool<br/>    endpoint_public_access        = bool<br/>    endpoint_private_access       = bool<br/>    public_access_cidrs           = list(string)<br/>    access_config = object({<br/>      authentication_mode                         = string<br/>      bootstrap_cluster_creator_admin_permissions = bool<br/>    })<br/>  })</pre> | n/a | yes |
 | <a name="input_gateway_endpoint_settings"></a> [gateway\_endpoint\_settings](#input\_gateway\_endpoint\_settings) | AWS service names for Gateway VPC endpoints (S3, DynamoDB) | `set(string)` | n/a | yes |
 | <a name="input_interface_endpoint_settings"></a> [interface\_endpoint\_settings](#input\_interface\_endpoint\_settings) | AWS service names for Interface VPC endpoints | `set(string)` | n/a | yes |
 | <a name="input_kms_key"></a> [kms\_key](#input\_kms\_key) | KMS key for the EKS memo project | <pre>object({<br/>    description             = string<br/>    enable_key_rotation     = bool<br/>    deletion_window_in_days = number<br/>    alias_name              = string<br/>  })</pre> | n/a | yes |

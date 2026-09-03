@@ -30,3 +30,9 @@ module "logging" {
   cloud_watch = var.cloud_watch
   vpc_id      = module.networking.vpc_id
 }
+module "eks" {
+  source               = "../../modules/eks"
+  eks_cluster_settings = var.eks_cluster_settings
+  subnet_ids           = module.networking.subnet_ids
+  eks_cluster_kms_key  = module.security.eks_cluster_kms_key
+}

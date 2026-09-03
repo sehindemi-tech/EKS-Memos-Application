@@ -46,5 +46,6 @@ No modules.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_eks_cluster_kms_key"></a> [eks\_cluster\_kms\_key](#output\_eks\_cluster\_kms\_key) | The ARN of the KMS key for the EKS cluster encryption |
 | <a name="output_interface_endpoint_sg"></a> [interface\_endpoint\_sg](#output\_interface\_endpoint\_sg) | interface endpoint security group id |
 <!-- END_TF_DOCS -->

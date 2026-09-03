@@ -105,3 +105,21 @@ variable "cloud_watch" {
   })
 }
 
+#####EKS
+variable "eks_cluster_settings" {
+  description = "EKS cluster settings for the EKS memo Application"
+  type = object({
+    version                       = string
+    deletion_protection           = bool
+    enabled_cluster_log_type      = list(string)
+    bootstrap_self_managed_addons = bool
+    endpoint_public_access        = bool
+    endpoint_private_access       = bool
+    public_access_cidrs           = list(string)
+    access_config = object({
+      authentication_mode                         = string
+      bootstrap_cluster_creator_admin_permissions = bool
+    })
+  })
+}
+
