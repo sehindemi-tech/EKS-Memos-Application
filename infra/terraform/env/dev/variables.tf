@@ -79,6 +79,21 @@ variable "vpc_egress_interface_endpoint_sg" {
   })
 }
 
+variable "kms_key" {
+  description = "KMS key for the EKS memo project"
+  type = object({
+    description             = string
+    enable_key_rotation     = bool
+    deletion_window_in_days = number
+    alias_name              = string
+  })
+}
+
+variable "bootstrap_role_arns" {
+  description = "IAM roles ARN from bootstrap"
+  type        = list(string)
+}
+
 ###logging
 ### CloudWatch Log Group for VPC Flow Logs
 variable "cloud_watch" {
@@ -89,3 +104,4 @@ variable "cloud_watch" {
     retention_in_days = number
   })
 }
+

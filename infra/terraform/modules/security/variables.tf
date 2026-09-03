@@ -39,3 +39,19 @@ variable "vpc_egress_interface_endpoint_sg" {
     cidr_ipv4          = string
   })
 }
+
+variable "kms_key" {
+  description = "KMS key for the EKS memo project"
+  type = object({
+    description             = string
+    enable_key_rotation     = bool
+    deletion_window_in_days = number
+    alias_name              = string
+  })
+}
+
+
+variable "bootstrap_role_arns" {
+  description = "IAM roles ARN from bootstrap"
+  type        = list(string)
+}

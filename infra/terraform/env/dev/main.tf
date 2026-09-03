@@ -21,6 +21,8 @@ module "security" {
   vpc_ingress_interface_endpoint_sg = var.vpc_ingress_interface_endpoint_sg
   vpc_egress_interface_endpoint_sg  = var.vpc_egress_interface_endpoint_sg
   vpc_id                            = module.networking.vpc_id
+  kms_key                           = var.kms_key
+  bootstrap_role_arns               = var.bootstrap_role_arns
 }
 
 module "logging" {

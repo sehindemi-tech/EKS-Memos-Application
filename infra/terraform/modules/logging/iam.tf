@@ -9,6 +9,7 @@ data "aws_iam_policy_document" "flow_logs_iam_policies" {
     sid     = "IamFlowLogs"
     effect  = "Allow"
     actions = ["sts:AssumeRole"]
+
     principals {
       type        = "Service"
       identifiers = ["vpc-flow-logs.amazonaws.com"]
