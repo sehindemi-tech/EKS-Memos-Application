@@ -42,3 +42,23 @@ variable "eks_node_managed_policy_arns" {
   description = "Managed IAM policy ARNs to attach to the EKS node group role"
   type        = set(string)
 }
+
+variable "eks_node_group_settings" {
+  description = "EKS node group settings"
+  type = object({
+    instance_type = list(string)
+    capacity_type = string
+    ami_type      = string
+    disk_size     = number
+    scaling_config = object({
+      min_size     = number
+      max_size     = number
+      desired_size = number
+    })
+    update_config = object({
+      max_unavailable = number
+      update_strategy = string
+    })
+
+  })
+}

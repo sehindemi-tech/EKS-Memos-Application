@@ -22,7 +22,3 @@ data "aws_iam_policy_document" "eks_node_assume_role" {
   }
 }
 
-# resource "aws_iam_role_policy" "node_elb" {
-#   role = aws_iam_role.eks_node_iam_role.id
-#   policy = data.aws_iam_policy_document.node_elb.json
-# }

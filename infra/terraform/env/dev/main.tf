@@ -36,4 +36,6 @@ module "eks" {
   subnet_ids                   = module.networking.subnet_ids
   eks_cluster_kms_key          = module.security.eks_cluster_kms_key
   eks_node_managed_policy_arns = var.eks_node_managed_policy_arns
+  private_subnet_ids           = module.networking.private_subnet_ids
+  eks_node_group_settings      = var.eks_node_group_settings
 }
