@@ -123,3 +123,7 @@ variable "eks_cluster_settings" {
   })
 }
 
+variable "eks_node_managed_policy_arns" {
+  description = "Managed IAM policy ARNs to attach to the EKS node group role"
+  type        = list(string)
+}
