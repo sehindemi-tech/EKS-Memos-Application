@@ -14,10 +14,6 @@
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | 6.62.0 |
 
-## Modules
-
-No modules.
-
 ## Resources
 
 | Name | Type |

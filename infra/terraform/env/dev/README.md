@@ -8,10 +8,6 @@
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | 1.15.2 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | 6.62.0 |
 
-## Providers
-
-No providers.
-
 ## Modules
 
 | Name | Source | Version |
@@ -21,10 +17,6 @@ No providers.
 | <a name="module_networking"></a> [networking](#module\_networking) | ../../modules/networking | n/a |
 | <a name="module_route_53"></a> [route\_53](#module\_route\_53) | ../../modules/route-53 | n/a |
 | <a name="module_security"></a> [security](#module\_security) | ../../modules/security | n/a |
-
-## Resources
-
-No resources.
 
 ## Inputs
 
@@ -46,8 +38,4 @@ No resources.
 | <a name="input_vpc_egress_interface_endpoint_sg"></a> [vpc\_egress\_interface\_endpoint\_sg](#input\_vpc\_egress\_interface\_endpoint\_sg) | VPC endpoint Security group for EKS memo application | <pre>object({<br/>    egress_description = string<br/>    ip_protocol        = string<br/>    cidr_ipv4          = string<br/>  })</pre> | n/a | yes |
 | <a name="input_vpc_ingress_interface_endpoint_sg"></a> [vpc\_ingress\_interface\_endpoint\_sg](#input\_vpc\_ingress\_interface\_endpoint\_sg) | VPC endpoint Security group for EKS memo application | <pre>object({<br/>    ingress_description = string<br/>    ip_protocol         = string<br/>    from_port           = number<br/>    to_port             = number<br/>  })</pre> | n/a | yes |
 | <a name="input_vpc_settings"></a> [vpc\_settings](#input\_vpc\_settings) | VPC settings for the EKS Memo platform | <pre>object({<br/>    cidr_block           = optional(string)<br/>    enable_dns_hostnames = optional(bool)<br/>    enable_dns_support   = optional(bool)<br/>  })</pre> | n/a | yes |
-
-## Outputs
-
-No outputs.
 <!-- END_TF_DOCS -->

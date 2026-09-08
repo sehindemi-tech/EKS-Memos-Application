@@ -14,10 +14,6 @@
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | 6.62.0 |
 
-## Modules
-
-No modules.
-
 ## Resources
 
 | Name | Type |
@@ -52,8 +48,4 @@ No modules.
 | <a name="input_private_subnet_ids"></a> [private\_subnet\_ids](#input\_private\_subnet\_ids) | Private Subnet ids | `list(string)` | n/a | yes |
 | <a name="input_project_settings"></a> [project\_settings](#input\_project\_settings) | The Default setting for our EKS Memo Project | <pre>object({<br/>    aws_region   = optional(string, "eu-west-2")<br/>    org          = optional(string, "sehindemi-tech")<br/>    github_repo  = optional(string, "eks-memos-application")<br/>    project_name = optional(string, "eks-memos-application")<br/>  })</pre> | `{}` | no |
 | <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | List of subnet EKS ENI will be in | `list(string)` | n/a | yes |
-
-## Outputs
-
-No outputs.
 <!-- END_TF_DOCS -->

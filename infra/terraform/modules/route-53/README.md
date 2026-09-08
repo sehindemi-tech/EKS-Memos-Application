@@ -14,10 +14,6 @@
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | 6.62.0 |
 
-## Modules
-
-No modules.
-
 ## Resources
 
 | Name | Type |
@@ -29,8 +25,4 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_route53_settings"></a> [route53\_settings](#input\_route53\_settings) | Route 53 Zone for EKS Memo Application | <pre>object({<br/>    name          = string<br/>    force_destroy = optional(bool, false)<br/>  })</pre> | n/a | yes |
-
-## Outputs
-
-No outputs.
 <!-- END_TF_DOCS -->
