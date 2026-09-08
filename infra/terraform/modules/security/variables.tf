@@ -55,3 +55,18 @@ variable "bootstrap_role_arns" {
   description = "IAM roles ARN from bootstrap"
   type        = list(string)
 }
+
+variable "rds_sg_ingress_from_eks" {
+  description = "Ingress rules for allowing access to RDS from the EKS cluster"
+  type = object({
+    ingress_description = string
+    ip_protocol         = string
+    from_port           = number
+    to_port             = number
+  })
+}
+
+variable "eks_cluster_security_group_id" {
+  description = "The security group ID of the EKS cluster"
+  type        = string
+}

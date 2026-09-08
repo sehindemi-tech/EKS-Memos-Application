@@ -94,6 +94,18 @@ variable "bootstrap_role_arns" {
   type        = list(string)
 }
 
+variable "rds_sg_ingress_from_eks" {
+  description = "Ingress rules for allowing access to RDS from the EKS cluster"
+  type = object({
+    ingress_description = string
+    ip_protocol         = string
+    from_port           = number
+    to_port             = number
+  })
+}
+
+
+
 ###logging
 ### CloudWatch Log Group for VPC Flow Logs
 variable "cloud_watch" {

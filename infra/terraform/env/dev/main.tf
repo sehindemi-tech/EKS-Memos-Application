@@ -23,6 +23,8 @@ module "security" {
   vpc_id                            = module.networking.vpc_id
   kms_key                           = var.kms_key
   bootstrap_role_arns               = var.bootstrap_role_arns
+  rds_sg_ingress_from_eks           = var.rds_sg_ingress_from_eks
+  eks_cluster_security_group_id     = module.eks.eks_cluster_security_group_id
 }
 
 module "logging" {
@@ -39,6 +41,12 @@ module "eks" {
   private_subnet_ids            = module.networking.private_subnet_ids
   eks_node_group_settings       = var.eks_node_group_settings
   cluster_admins_principal_arns = var.cluster_admins_principal_arns
+
+
+}
+module "rds" {
+  source             = "../../modules/rds"
+  private_subnet_ids = module.networking.private_subnet_ids
 
 
 }
