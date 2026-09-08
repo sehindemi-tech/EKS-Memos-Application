@@ -22,6 +22,8 @@ No modules.
 
 | Name | Type |
 |------|------|
+| [aws_eks_access_entry.this](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/eks_access_entry) | resource |
+| [aws_eks_access_policy_association.this](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/eks_access_policy_association) | resource |
 | [aws_eks_cluster.this](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/eks_cluster) | resource |
 | [aws_eks_node_group.this](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/eks_node_group) | resource |
 | [aws_iam_role.eks_node_iam_role](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/iam_role) | resource |
@@ -34,6 +36,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_cluster_admins_principal_arns"></a> [cluster\_admins\_principal\_arns](#input\_cluster\_admins\_principal\_arns) | IAM principal ARNs granted cluster-admin access to the EKS cluster | `map(string)` | n/a | yes |
 | <a name="input_eks_cluster_kms_key"></a> [eks\_cluster\_kms\_key](#input\_eks\_cluster\_kms\_key) | The ARN of the KMS key for the EKS cluster encryption | `string` | n/a | yes |
 | <a name="input_eks_cluster_settings"></a> [eks\_cluster\_settings](#input\_eks\_cluster\_settings) | EKS cluster settings for the EKS memo Application | <pre>object({<br/>    version                       = string<br/>    deletion_protection           = bool<br/>    enabled_cluster_log_type      = list(string)<br/>    bootstrap_self_managed_addons = bool<br/>    endpoint_public_access        = bool<br/>    endpoint_private_access       = bool<br/>    public_access_cidrs           = list(string)<br/>    access_config = object({<br/>      authentication_mode                         = string<br/>      bootstrap_cluster_creator_admin_permissions = bool<br/>    })<br/>  })</pre> | n/a | yes |
 | <a name="input_eks_node_group_settings"></a> [eks\_node\_group\_settings](#input\_eks\_node\_group\_settings) | EKS node group settings | <pre>object({<br/>    instance_type = list(string)<br/>    capacity_type = string<br/>    ami_type      = string<br/>    disk_size     = number<br/>    scaling_config = object({<br/>      min_size     = number<br/>      max_size     = number<br/>      desired_size = number<br/>    })<br/>    update_config = object({<br/>      max_unavailable = number<br/>      update_strategy = string<br/>    })<br/><br/>  })</pre> | n/a | yes |
