@@ -1,4 +1,4 @@
-resource "aws_cloudwatch_log_group" "this" {
+resource "aws_cloudwatch_log_group" "vpc_flow_logs" {
   name                        = var.cloud_watch.name
   skip_destroy                = false
   deletion_protection_enabled = false

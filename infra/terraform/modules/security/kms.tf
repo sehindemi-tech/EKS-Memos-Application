@@ -59,4 +59,20 @@ data "aws_iam_policy_document" "eks_kms_key" {
     ]
     resources = ["*"]
   }
+
+  statement {
+    sid    = "AllowSecretsManagerUseOfKey"
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["secretsmanager.amazonaws.com"]
+    }
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey",
+    ]
+    resources = ["*"]
+  }
 }

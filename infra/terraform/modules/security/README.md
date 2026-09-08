@@ -48,4 +48,6 @@
 |------|-------------|
 | <a name="output_eks_cluster_kms_key"></a> [eks\_cluster\_kms\_key](#output\_eks\_cluster\_kms\_key) | The ARN of the KMS key for the EKS cluster encryption |
 | <a name="output_interface_endpoint_sg"></a> [interface\_endpoint\_sg](#output\_interface\_endpoint\_sg) | interface endpoint security group id |
+| <a name="output_kms_key"></a> [kms\_key](#output\_kms\_key) | The ARN of the KMS key for general use |
+| <a name="output_rds_sg"></a> [rds\_sg](#output\_rds\_sg) | The security group ID for the RDS instance |
 <!-- END_TF_DOCS -->

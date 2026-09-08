@@ -45,8 +45,10 @@ module "eks" {
 
 }
 module "rds" {
-  source             = "../../modules/rds"
-  private_subnet_ids = module.networking.private_subnet_ids
-
+  source                 = "../../modules/rds"
+  private_subnet_ids     = module.networking.private_subnet_ids
+  rds_instance_settings  = var.rds_instance_settings
+  kms_key_id             = module.security.kms_key
+  vpc_security_group_ids = module.security.rds_sg
 
 }

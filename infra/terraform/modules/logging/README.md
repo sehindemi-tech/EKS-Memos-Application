@@ -18,7 +18,7 @@
 
 | Name | Type |
 |------|------|
-| [aws_cloudwatch_log_group.this](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/cloudwatch_log_group) | resource |
+| [aws_cloudwatch_log_group.vpc_flow_logs](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/cloudwatch_log_group) | resource |
 | [aws_flow_log.this](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/flow_log) | resource |
 | [aws_iam_role.flow_logs_iam](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/iam_role) | resource |
 | [aws_iam_role_policy_attachment.flow_logs_iam_policies_attachment](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/iam_role_policy_attachment) | resource |
