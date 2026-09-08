@@ -40,4 +40,5 @@ module "eks" {
   eks_node_group_settings       = var.eks_node_group_settings
   cluster_admins_principal_arns = var.cluster_admins_principal_arns
 
+
 }

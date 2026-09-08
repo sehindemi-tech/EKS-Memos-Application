@@ -24,10 +24,18 @@ No modules.
 |------|------|
 | [aws_eks_access_entry.this](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/eks_access_entry) | resource |
 | [aws_eks_access_policy_association.this](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/eks_access_policy_association) | resource |
+| [aws_eks_addon.coredns](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/eks_addon) | resource |
+| [aws_eks_addon.ebs_csi_driver_addon](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/eks_addon) | resource |
+| [aws_eks_addon.kube_proxy](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/eks_addon) | resource |
+| [aws_eks_addon.pod_identity_agent](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/eks_addon) | resource |
+| [aws_eks_addon.vpc_cni](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/eks_addon) | resource |
 | [aws_eks_cluster.this](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/eks_cluster) | resource |
 | [aws_eks_node_group.this](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/eks_node_group) | resource |
+| [aws_eks_pod_identity_association.ebs_csi_driver](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/eks_pod_identity_association) | resource |
+| [aws_iam_role.ebs_csi_driver](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/iam_role) | resource |
 | [aws_iam_role.eks_node_iam_role](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/iam_role) | resource |
 | [aws_iam_role.this](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy_attachment.ebs_csi_driver](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.node_policy_arns](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.this](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_policy_document.eks_node_assume_role](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/data-sources/iam_policy_document) | data source |

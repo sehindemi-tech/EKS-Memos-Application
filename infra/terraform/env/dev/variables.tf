@@ -153,3 +153,4 @@ variable "cluster_admins_principal_arns" {
   description = "IAM principal ARNs granted cluster-admin access to the EKS cluster"
   type        = map(string)
 }
+
