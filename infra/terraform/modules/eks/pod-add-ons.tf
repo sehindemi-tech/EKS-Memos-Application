@@ -58,3 +58,39 @@ resource "aws_eks_pod_identity_association" "ebs_csi_driver" {
     aws_iam_role_policy_attachment.ebs_csi_driver
   ]
 }
+
+resource "aws_eks_pod_identity_association" "cert_manager" {
+  cluster_name    = aws_eks_cluster.this.name
+  namespace       = "cert-manager"
+  service_account = "cert-manager"
+  role_arn        = aws_iam_role.cert_manager.arn
+
+  depends_on = [
+    aws_eks_addon.pod_identity_agent,
+    aws_iam_role_policy.cert_manager
+  ]
+}
+
+resource "aws_eks_pod_identity_association" "external_dns" {
+  cluster_name    = aws_eks_cluster.this.name
+  namespace       = "external-dns"
+  service_account = "external-dns"
+  role_arn        = aws_iam_role.external_dns.arn
+
+  depends_on = [
+    aws_eks_addon.pod_identity_agent,
+    aws_iam_role_policy.external_dns
+  ]
+}
+
+resource "aws_eks_pod_identity_association" "external_secrets" {
+  cluster_name    = aws_eks_cluster.this.name
+  namespace       = "external-secrets"
+  service_account = "external-secrets"
+  role_arn        = aws_iam_role.external_secrets.arn
+
+  depends_on = [
+    aws_eks_addon.pod_identity_agent,
+    aws_iam_role_policy.external_secrets
+  ]
+}

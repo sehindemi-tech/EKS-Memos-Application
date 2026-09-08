@@ -68,4 +68,12 @@ variable "cluster_admins_principal_arns" {
   type        = map(string)
 }
 
+variable "hosted_zone_arn" {
+  description = "The ARN of the Route 53 hosted zone"
+  type        = string
+}
 
+variable "rds_secret_arn" {
+  description = "The ARN of the RDS secret"
+  type        = string
+}

@@ -41,6 +41,8 @@ module "eks" {
   private_subnet_ids            = module.networking.private_subnet_ids
   eks_node_group_settings       = var.eks_node_group_settings
   cluster_admins_principal_arns = var.cluster_admins_principal_arns
+  hosted_zone_arn               = module.route_53.hosted_zone_arn
+  rds_secret_arn                = module.rds.rds_secret_arn
 
 
 }
