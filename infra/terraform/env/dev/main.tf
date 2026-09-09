@@ -43,7 +43,7 @@ module "eks" {
   cluster_admins_principal_arns = var.cluster_admins_principal_arns
   hosted_zone_arn               = module.route_53.hosted_zone_arn
   rds_secret_arn                = module.rds.rds_secret_arn
-
+  argocd_config                 = var.argocd_config
 
 }
 module "rds" {

@@ -7,12 +7,14 @@
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | 1.15.2 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | 6.62.0 |
+| <a name="requirement_helm"></a> [helm](#requirement\_helm) | 3.3.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | 6.62.0 |
+| <a name="provider_helm"></a> [helm](#provider\_helm) | 3.3.0 |
 
 ## Resources
 
@@ -43,6 +45,7 @@
 | [aws_iam_role_policy_attachment.ebs_csi_driver](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.node_policy_arns](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/iam_role_policy_attachment) | resource |
 | [aws_iam_role_policy_attachment.this](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/resources/iam_role_policy_attachment) | resource |
+| [helm_release.argocd](https://registry.terraform.io/providers/hashicorp/helm/3.3.0/docs/resources/release) | resource |
 | [aws_iam_policy_document.cert_manager](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.eks_node_assume_role](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.external_dns](https://registry.terraform.io/providers/hashicorp/aws/6.62.0/docs/data-sources/iam_policy_document) | data source |
@@ -52,6 +55,7 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_argocd_config"></a> [argocd\_config](#input\_argocd\_config) | Configuration for Argo CD Helm release | <pre>object({<br/>    name             = string<br/>    repository       = string<br/>    chart            = string<br/>    version          = string<br/>    namespace        = string<br/>    create_namespace = bool<br/>  })</pre> | n/a | yes |
 | <a name="input_cluster_admins_principal_arns"></a> [cluster\_admins\_principal\_arns](#input\_cluster\_admins\_principal\_arns) | IAM principal ARNs granted cluster-admin access to the EKS cluster | `map(string)` | n/a | yes |
 | <a name="input_eks_cluster_kms_key"></a> [eks\_cluster\_kms\_key](#input\_eks\_cluster\_kms\_key) | The ARN of the KMS key for the EKS cluster encryption | `string` | n/a | yes |
 | <a name="input_eks_cluster_settings"></a> [eks\_cluster\_settings](#input\_eks\_cluster\_settings) | EKS cluster settings for the EKS memo Application | <pre>object({<br/>    version                       = string<br/>    deletion_protection           = bool<br/>    enabled_cluster_log_type      = list(string)<br/>    bootstrap_self_managed_addons = bool<br/>    endpoint_public_access        = bool<br/>    endpoint_private_access       = bool<br/>    public_access_cidrs           = list(string)<br/>    access_config = object({<br/>      authentication_mode                         = string<br/>      bootstrap_cluster_creator_admin_permissions = bool<br/>    })<br/>  })</pre> | n/a | yes |
@@ -67,5 +71,8 @@
 
 | Name | Description |
 |------|-------------|
+| <a name="output_cluster_certificate_authority_data"></a> [cluster\_certificate\_authority\_data](#output\_cluster\_certificate\_authority\_data) | Cluster certificate authority data |
+| <a name="output_cluster_endpoint"></a> [cluster\_endpoint](#output\_cluster\_endpoint) | Cluster endpoint |
+| <a name="output_cluster_name"></a> [cluster\_name](#output\_cluster\_name) | Cluster name |
 | <a name="output_eks_cluster_security_group_id"></a> [eks\_cluster\_security\_group\_id](#output\_eks\_cluster\_security\_group\_id) | The security group ID of the EKS cluster |
 <!-- END_TF_DOCS -->

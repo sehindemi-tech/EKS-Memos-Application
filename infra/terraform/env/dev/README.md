@@ -7,6 +7,7 @@
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | 1.15.2 |
 | <a name="requirement_aws"></a> [aws](#requirement\_aws) | 6.62.0 |
+| <a name="requirement_helm"></a> [helm](#requirement\_helm) | 3.3.0 |
 
 ## Modules
 
@@ -23,6 +24,7 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_argocd_config"></a> [argocd\_config](#input\_argocd\_config) | Configuration for Argo CD Helm release | <pre>object({<br/>    name             = string<br/>    repository       = string<br/>    chart            = string<br/>    version          = string<br/>    namespace        = string<br/>    create_namespace = bool<br/>  })</pre> | n/a | yes |
 | <a name="input_bootstrap_role_arns"></a> [bootstrap\_role\_arns](#input\_bootstrap\_role\_arns) | IAM roles ARN from bootstrap | `list(string)` | n/a | yes |
 | <a name="input_cloud_watch"></a> [cloud\_watch](#input\_cloud\_watch) | CloudWatch log group settings | <pre>object({<br/>    name              = string<br/>    log_group_class   = string<br/>    retention_in_days = number<br/>  })</pre> | n/a | yes |
 | <a name="input_cluster_admins_principal_arns"></a> [cluster\_admins\_principal\_arns](#input\_cluster\_admins\_principal\_arns) | IAM principal ARNs granted cluster-admin access to the EKS cluster | `map(string)` | n/a | yes |

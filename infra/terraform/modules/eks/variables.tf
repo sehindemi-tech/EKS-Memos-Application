@@ -77,3 +77,15 @@ variable "rds_secret_arn" {
   description = "The ARN of the RDS secret"
   type        = string
 }
+
+variable "argocd_config" {
+  description = "Configuration for Argo CD Helm release"
+  type = object({
+    name             = string
+    repository       = string
+    chart            = string
+    version          = string
+    namespace        = string
+    create_namespace = bool
+  })
+}

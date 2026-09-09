@@ -192,3 +192,16 @@ variable "rds_instance_settings" {
     storage_type                = string
   })
 }
+
+
+variable "argocd_config" {
+  description = "Configuration for Argo CD Helm release"
+  type = object({
+    name             = string
+    repository       = string
+    chart            = string
+    version          = string
+    namespace        = string
+    create_namespace = bool
+  })
+}
