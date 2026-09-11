@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - repoURL: quay.io/jetstack/charts
+      chart: cert-manager
+      targetRevision: v1.21.2
+      helm:
+        valueFiles:
+          - $values/infra/kubernetes/values/cert-manager.yaml
+    - repoURL: https://github.com/sehindemi-tech/EKS-Memos-Application.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
