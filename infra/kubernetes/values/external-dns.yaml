@@ -1,0 +1,12 @@
+provider:
+  name: aws
+  aws:
+    region: eu-west-2
+
+policy: sync
+txtOwnerId: eks-memos-application-external-dns
+domainFilters:
+  - memo.sehindemi.com
+
+serviceAccount:
+  name: external-dns
