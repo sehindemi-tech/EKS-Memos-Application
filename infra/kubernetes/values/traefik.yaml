@@ -1,0 +1,31 @@
+providers:
+  kubernetesCRD:
+    enabled: true
+    allowCrossNamespace: true
+  kubernetesIngress:
+    enabled: false
+
+service:
+  type: LoadBalancer
+
+publishedService:
+  enabled: true
+
+ingressRoute:
+  dashboard:
+    enabled: false
+
+podDisruptionBudget:
+  enabled: true
+  maxUnavailable: 1
+
+deployment:
+  replicas: 2
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 50Mi
+  limits:
+    cpu: 300m
+    memory: 150Mi
