@@ -8,8 +8,6 @@ providers:
 service:
   type: LoadBalancer
 
-publishedService:
-  enabled: true
 
 ingressRoute:
   dashboard:
