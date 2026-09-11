@@ -3,6 +3,9 @@ provider:
   aws:
     region: eu-west-2
 
+sources:
+  - traefik-proxy
+
 policy: sync
 txtOwnerId: eks-memos-application-external-dns
 domainFilters:
