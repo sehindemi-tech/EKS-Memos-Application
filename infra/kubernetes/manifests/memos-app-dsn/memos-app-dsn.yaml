@@ -1,0 +1,25 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: memos-dsn
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: aws-secrets-manager
+    kind: ClusterSecretStore
+  target:
+    name: memos-dsn
+    creationPolicy: Owner
+    template:
+      engineVersion: v2
+      data:
+        dsn: "postgres://{{ .username }}:{{ .password | urlquery }}@eks-memos-application-db.c5ys4ug2m3pa.eu-west-2.rds.amazonaws.com:5432/memos?sslmode=require"
+  data:
+    - secretKey: username
+      remoteRef:
+        key: "rds!db-81d48043-795a-4d6e-9986-1043ba2f6110"
+        property: user_name
+    - secretKey: password
+      remoteRef:
+        key: "rds!db-81d48043-795a-4d6e-9986-1043ba2f6110"
+        property: password
