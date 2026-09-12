@@ -44,6 +44,7 @@ module "eks" {
   hosted_zone_arn               = module.route_53.hosted_zone_arn
   rds_secret_arn                = module.rds.rds_secret_arn
   argocd_config                 = var.argocd_config
+  kms_key                       = module.security.kms_key
 
 }
 module "rds" {

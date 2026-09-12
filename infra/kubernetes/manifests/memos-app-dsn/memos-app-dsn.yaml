@@ -18,7 +18,7 @@ spec:
     - secretKey: username
       remoteRef:
         key: "rds!db-81d48043-795a-4d6e-9986-1043ba2f6110"
-        property: user_name
+        property: username
     - secretKey: password
       remoteRef:
         key: "rds!db-81d48043-795a-4d6e-9986-1043ba2f6110"

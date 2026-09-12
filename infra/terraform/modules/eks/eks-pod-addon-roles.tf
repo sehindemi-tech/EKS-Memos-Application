@@ -147,5 +147,13 @@ data "aws_iam_policy_document" "external_secrets" {
     ]
     resources = [var.rds_secret_arn]
   }
+  statement {
+    sid    = "AllowExternalSecretsDecrypt"
+    effect = "Allow"
+    actions = [
+      "kms:Decrypt"
+    ]
+    resources = [var.kms_key]
+  }
 }
 

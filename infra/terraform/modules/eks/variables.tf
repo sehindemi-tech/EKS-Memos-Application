@@ -89,3 +89,8 @@ variable "argocd_config" {
     create_namespace = bool
   })
 }
+
+variable "kms_key" {
+  description = "KMS key for encrypting the RDS instance"
+  type        = string
+}
