@@ -6,6 +6,7 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     external-dns.kubernetes.io/target: a5ebf6b99215b408b8c62c7d1cc6d30c-761450285.eu-west-2.elb.amazonaws.com
+    external-dns.alpha.kubernetes.io/target: a5ebf6b99215b408b8c62c7d1cc6d30c-761450285.eu-west-2.elb.amazonaws.com
 spec:
   entryPoints:
     - websecure
