@@ -4,7 +4,7 @@ provider:
     region: eu-west-2
 
 sources:
-  - traefik-proxy
+  - ingress
 
 policy: sync
 txtOwnerId: eks-memos-application-external-dns
