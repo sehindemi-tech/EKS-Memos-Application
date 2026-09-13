@@ -3,7 +3,7 @@ providers:
     enabled: true
     allowCrossNamespace: true
   kubernetesIngress:
-    enabled: false
+    enabled: true
 
 service:
   type: LoadBalancer
