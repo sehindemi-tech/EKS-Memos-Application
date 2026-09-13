@@ -1,0 +1,20 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: argocd-server
+  namespace: argocd
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    external-dns.kubernetes.io/target: a5ebf6b99215b408b8c62c7d1cc6d30c-761450285.eu-west-2.elb.amazonaws.com
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`argocd.memo.sehindemi.com`)
+      kind: Rule
+      services:
+        - name: argocd-server
+          port: 80
+          scheme: h2c
+  tls:
+    secretName: argocd-server-tls

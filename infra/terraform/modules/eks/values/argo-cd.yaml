@@ -1,5 +1,6 @@
 server:
   service:
     type: ClusterIP
+insecure: true
 dex:
   enabled: true
