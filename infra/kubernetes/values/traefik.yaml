@@ -4,10 +4,11 @@ providers:
     allowCrossNamespace: true
   kubernetesIngress:
     enabled: true
+    publishedService:
+      enabled: true
 
 service:
   type: LoadBalancer
-
 
 ingressRoute:
   dashboard:
