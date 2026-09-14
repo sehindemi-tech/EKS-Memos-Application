@@ -1,6 +1,8 @@
 server:
   service:
     type: ClusterIP
-insecure: true
+configs:
+  params:
+    server.insecure: true
 dex:
   enabled: true
