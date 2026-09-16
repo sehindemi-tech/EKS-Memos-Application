@@ -15,7 +15,7 @@ spec:
     path: infra/kubernetes/manifests/memos-app-dsn
   destination:
     server: https://kubernetes.default.svc
-    namespace: memos
+    namespace: memos-app
   syncPolicy:
     automated:
       prune: true
