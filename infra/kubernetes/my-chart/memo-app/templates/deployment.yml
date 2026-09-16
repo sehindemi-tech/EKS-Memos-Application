@@ -13,12 +13,12 @@ spec:
 
   selector:
     matchLabels:
-      app: {{ .Values.matchLables.app }}
+      app: {{ .Values.matchLabels.app }}
 
   template:
     metadata:
       labels:
-        app: {{ .Values.matchLables.app }}
+        app: {{ .Values.matchLabels.app }}
 
     spec:
       securityContext:

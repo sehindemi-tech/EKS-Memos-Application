@@ -1,7 +1,7 @@
 replicaCount: 3
 
 rollingUpdate:
-  maxUnavailable: 2
+  maxUnavailable: 1
   maxSurge: 1
 
 matchLabels:
@@ -17,9 +17,7 @@ image:
   repository: 441336784821.dkr.ecr.eu-west-2.amazonaws.com/eks-memos-application
   tag: latest
 
-containerPort: 52
-
-instanceUrl: "https://memos.sehindemi.com"
+containerPort: 5230
 
 dsn:
   secretName: memos-dsn
