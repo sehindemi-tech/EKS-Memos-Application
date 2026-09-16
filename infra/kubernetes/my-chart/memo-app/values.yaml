@@ -1,0 +1,41 @@
+replicaCount: 3
+
+rollingUpdate:
+  maxUnavailable: 2
+  maxSurge: 1
+
+matchLabels:
+  app: memos-app
+
+securityContext:
+  runAsUser: 10001
+  runAsGroup: 10001
+  fsGroup: 10001
+  runAsNonRoot: true
+
+image:
+  repository: 441336784821.dkr.ecr.eu-west-2.amazonaws.com/eks-memos-application
+  tag: latest
+
+containerPort: 52
+
+instanceUrl: "https://memos.sehindemi.com"
+
+dsn:
+  secretName: memos-dsn
+  secretKey: dsn
+
+
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 100m
+    memory: 128Mi
+
+##ingress.yml
+hostname: memo.sehindemi.com
+
+clusterIssuer: letsencrypt-https
