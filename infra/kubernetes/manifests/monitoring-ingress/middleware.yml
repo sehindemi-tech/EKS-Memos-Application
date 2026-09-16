@@ -5,5 +5,5 @@ metadata:
   namespace: monitoring
 spec:
   basicAuth:
-    secret: monitoring-auth
+    secret: monitoring-middleware-auth
     removeHeader: true
