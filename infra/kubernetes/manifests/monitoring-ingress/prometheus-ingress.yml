@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prometheus
+  namespace: monitoring
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.middlewares: monitoring-monitoring-basic-auth@kubernetescrd
+    cert-manager.io/cluster-issuer: letsencrypt-https
+spec:
+  ingressClassName: traefik
+
+  tls:
+    - hosts:
+        - prometheus.memo.sehindemi.com
+      secretName: prometheus-tls
+
+  rules:
+    - host: prometheus.memo.sehindemi.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kube-prometheus-stack-prometheus
+                port:
+                  number: 9090

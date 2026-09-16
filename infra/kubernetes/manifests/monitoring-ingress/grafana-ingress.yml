@@ -1,26 +1,25 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: memos-app
+  name: grafana
+  namespace: monitoring
   annotations:
-    cert-manager.io/cluster-issuer: {{ .Values.clusterIssuer }}
+    cert-manager.io/cluster-issuer: letsencrypt-https
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
-
 spec:
   ingressClassName: traefik
   tls:
     - hosts:
-        - {{ .Values.hostname }}
-      secretName: memos-tls
-
+        - grafana.memo.sehindemi.com
+      secretName: grafana-tls
   rules:
-    - host: {{ .Values.hostname }}
+    - host: grafana.memo.sehindemi.com
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: memos
+                name: kube-prometheus-stack-grafana
                 port:
-                  number: {{ .Values.containerPort }}
+                  number: 80

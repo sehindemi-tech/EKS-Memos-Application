@@ -1,0 +1,9 @@
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: monitoring-middleware
+  namespace: monitoring
+spec:
+  basicAuth:
+    secret: monitoring-auth
+    removeHeader: true
