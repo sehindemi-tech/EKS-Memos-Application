@@ -1,0 +1,94 @@
+name: Docker Build, Deploy and Push Image
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'app/memos/**'
+      - 'app/memos/Dockerfile'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: write
+
+jobs:
+  build-and-deploy:
+    defaults:
+      run:
+        working-directory: ./app/memos
+
+    name: Build, Scan, Push, Deploy, Health Test
+    runs-on: ubuntu-latest
+    outputs:
+      image-tag: ${{ steps.tag.outputs.image_tag }}
+
+    steps:
+      - name: Repo Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4.3.1
+        with:
+          role-to-assume: ${{ secrets.ECR_DOCKER_BUILD_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set image tag
+        id: tag
+        run: echo "image_tag=sha-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Build image
+        run: |
+          docker build \
+          -t ${{ vars.ECR_REPOSITORY_URL }}:${{ steps.tag.outputs.image_tag }} \
+          .
+
+      - name: Trivy image Scan
+        uses: aquasecurity/trivy-action@v0.36.0
+        continue-on-error: true
+        with:
+          image-ref: ${{ vars.ECR_REPOSITORY_URL }}:${{ steps.tag.outputs.image_tag }}
+          scan-type: image
+          format: sarif
+          output: trivy-image-result.sarif
+          exit-code: '1'
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+
+      - name: Publish Trivy Image scan results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-image-scan-${{ github.sha }}
+          path: app/trivy-image-result.sarif
+
+      - name: Push image to ECR
+        run: |
+          docker push ${{ vars.ECR_REPOSITORY_URL }}:${{ steps.tag.outputs.image_tag }}
+
+      - name: Bump image tag in Helm values
+        working-directory: .
+        run: |
+          yq eval '.image.tag = "${{ steps.tag.outputs.image_tag }}"' -i infra/kubernetes/my-chart/memo-app/values.yaml
+
+      - name: Commit and push tag bump
+        working-directory: .
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add infra/kubernetes/my-chart/memo-app/values.yaml
+          git diff --staged --quiet || git commit -m "ci: bump memos image tag to ${{ steps.tag.outputs.image_tag }}"
+          git push
+
+      - name: Post-deploy health check
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://it-tools.sehindemi.com/health)
+          if [ "$STATUS" != "200" ]; then
+            echo "Health check failed — status $STATUS"
+            exit 1
+          fi
