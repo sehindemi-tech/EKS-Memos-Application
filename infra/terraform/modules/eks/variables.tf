@@ -94,3 +94,8 @@ variable "kms_key" {
   description = "KMS key for encrypting the RDS instance"
   type        = string
 }
+
+variable "prometheus_basic_auth_secret_arn" {
+  description = "The ARN of the Prometheus basic auth secret"
+  type        = string
+}

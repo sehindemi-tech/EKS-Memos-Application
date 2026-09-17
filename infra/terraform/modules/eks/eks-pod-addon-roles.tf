@@ -145,7 +145,10 @@ data "aws_iam_policy_document" "external_secrets" {
       "secretsmanager:GetSecretValue",
       "secretsmanager:DescribeSecret"
     ]
-    resources = [var.rds_secret_arn]
+    resources = [
+      var.rds_secret_arn,
+      var.prometheus_basic_auth_secret_arn
+    ]
   }
   statement {
     sid    = "AllowExternalSecretsDecrypt"

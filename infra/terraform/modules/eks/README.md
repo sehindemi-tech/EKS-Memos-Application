@@ -65,6 +65,7 @@
 | <a name="input_kms_key"></a> [kms\_key](#input\_kms\_key) | KMS key for encrypting the RDS instance | `string` | n/a | yes |
 | <a name="input_private_subnet_ids"></a> [private\_subnet\_ids](#input\_private\_subnet\_ids) | Private Subnet ids | `list(string)` | n/a | yes |
 | <a name="input_project_settings"></a> [project\_settings](#input\_project\_settings) | The Default setting for our EKS Memo Project | <pre>object({<br/>    aws_region   = optional(string, "eu-west-2")<br/>    org          = optional(string, "sehindemi-tech")<br/>    github_repo  = optional(string, "eks-memos-application")<br/>    project_name = optional(string, "eks-memos-application")<br/>  })</pre> | `{}` | no |
+| <a name="input_prometheus_basic_auth_secret_arn"></a> [prometheus\_basic\_auth\_secret\_arn](#input\_prometheus\_basic\_auth\_secret\_arn) | The ARN of the Prometheus basic auth secret | `string` | n/a | yes |
 | <a name="input_rds_secret_arn"></a> [rds\_secret\_arn](#input\_rds\_secret\_arn) | The ARN of the RDS secret | `string` | n/a | yes |
 | <a name="input_subnet_ids"></a> [subnet\_ids](#input\_subnet\_ids) | List of subnet EKS ENI will be in | `list(string)` | n/a | yes |
 
