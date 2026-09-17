@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4.3.1
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: ${{ vars.ECR_DOCKER_BUILD_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
