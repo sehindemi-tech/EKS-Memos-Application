@@ -14,8 +14,8 @@ prometheus:
 grafana:
   admin:
     existingSecret: grafana-admin-credentials
-    userKey: admin-user
-    passwordKey: admin-password
+    userKey: admin
+    passwordKey: password
   persistence:
     enabled: true
     storageClassName: gp3
