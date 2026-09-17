@@ -171,6 +171,11 @@ variable "prometheus_basic_auth_secret_arn" {
   type        = string
 }
 
+variable "grafana_admin_credentials_secret_arn" {
+  description = "The ARN of the Grafana admin credentials secret"
+  type        = string
+}
+
 ###RDS Module
 variable "rds_instance_settings" {
   description = "RDS instance configuration"

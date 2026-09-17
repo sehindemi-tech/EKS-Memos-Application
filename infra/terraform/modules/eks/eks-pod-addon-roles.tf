@@ -147,7 +147,8 @@ data "aws_iam_policy_document" "external_secrets" {
     ]
     resources = [
       var.rds_secret_arn,
-      var.prometheus_basic_auth_secret_arn
+      var.prometheus_basic_auth_secret_arn,
+      var.grafana_admin_credentials_secret_arn
     ]
   }
   statement {
