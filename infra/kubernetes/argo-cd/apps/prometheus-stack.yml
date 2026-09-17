@@ -19,6 +19,8 @@ spec:
       targetRevision: main
       ref: values
       path: infra/kubernetes/infrastructure/monitoring/
+      directory:
+        recurse: true
 
   destination:
     server: https://kubernetes.default.svc
