@@ -18,15 +18,7 @@ spec:
     - repoURL: https://github.com/sehindemi-tech/EKS-Memos-Application.git
       targetRevision: main
       ref: values
-      path: infra/kubernetes/values
-
-    - repoURL: https://github.com/sehindemi-tech/EKS-Memos-Application.git
-      targetRevision: main
-      path: infra/kubernetes/infrastructure/monitoring/monitoring-external-secrets
-
-    - repoURL: https://github.com/sehindemi-tech/EKS-Memos-Application.git
-      targetRevision: main
-      path: infra/kubernetes/infrastructure/monitoring/monitoring-ingress
+      path: infra/kubernetes/infrastructure/monitoring/
 
   destination:
     server: https://kubernetes.default.svc
