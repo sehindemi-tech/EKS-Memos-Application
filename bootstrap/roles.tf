@@ -10,7 +10,7 @@ data "aws_iam_policy_document" "this" {
   for_each = var.iam_roles
 
   statement {
-    actions = ["sts:AssumeRole"]
+    actions = ["sts:AssumeRoleWithWebIdentity"]
 
     principals {
       type        = "Federated"
@@ -24,7 +24,7 @@ data "aws_iam_policy_document" "this" {
     }
 
     condition {
-      test     = "StringEquals"
+      test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
       values   = [each.value.sub_value]
     }

@@ -31,7 +31,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4.3.1
         with:
-          role-to-assume: ${{ secrets.ECR_DOCKER_BUILD_ROLE_ARN }}
+          role-to-assume: ${{ vars.ECR_DOCKER_BUILD_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
 
       - name: Login to Amazon ECR
