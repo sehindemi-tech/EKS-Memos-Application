@@ -37,3 +37,18 @@ resources:
 hostname: memo.sehindemi.com
 
 clusterIssuer: letsencrypt-https
+
+## limit ranges
+limitRange:
+  default:
+    cpu: 200m
+    memory: 256Mi
+  defaultRequest:
+    cpu: 100m
+    memory: 128Mi
+  min:
+    cpu: 50m
+    memory: 64Mi
+  max:
+    cpu: 500m
+    memory: 512Mi
