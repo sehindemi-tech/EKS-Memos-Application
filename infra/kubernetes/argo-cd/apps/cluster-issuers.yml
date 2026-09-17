@@ -12,7 +12,7 @@ spec:
   source:
     repoURL: https://github.com/sehindemi-tech/EKS-Memos-Application.git
     targetRevision: main
-    path: infra/kubernetes/manifests/cluster-issuers
+    path: infra/kubernetes/infrastructure/cluster-issuers
   destination:
     server: https://kubernetes.default.svc
   syncPolicy:

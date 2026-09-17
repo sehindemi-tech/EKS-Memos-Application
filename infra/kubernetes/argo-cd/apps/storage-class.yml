@@ -12,7 +12,7 @@ spec:
   source:
     repoURL: https://github.com/sehindemi-tech/EKS-Memos-Application.git
     targetRevision: main
-    path: infra/kubernetes/manifests/storage-class
+    path: infra/kubernetes/infrastructure/storage-class
   destination:
     server: https://kubernetes.default.svc
   syncPolicy:
