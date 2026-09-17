@@ -8,6 +8,7 @@ metadata:
     traefik.ingress.kubernetes.io/router.middlewares: monitoring-monitoring-middleware@kubernetescrd
     cert-manager.io/cluster-issuer: letsencrypt-https
     traefik.ingress.kubernetes.io/router.tls: "true"
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   ingressClassName: traefik
 

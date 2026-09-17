@@ -3,6 +3,8 @@ kind: Middleware
 metadata:
   name: monitoring-middleware
   namespace: monitoring
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   basicAuth:
     secret: monitoring-middleware-auth
