@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Environment to apply (dev/staging/prod)"
+        description: "Environment to apply"
         required: true
         type: choice
         options:
           - dev
-          - staging
-          - prod
+        default: dev
+
   pull_request:
     branches:
       - main
@@ -25,8 +25,6 @@ concurrency:
 permissions:
   contents: read
   id-token: write
-  security-events: write
-  actions: read
 
 env:
   TF_WORKING_DIR: infra/terraform/env/dev
@@ -35,6 +33,7 @@ env:
 jobs:
   apply:
     runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
     name: Terraform Apply
     defaults:
       run:
