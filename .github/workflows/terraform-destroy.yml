@@ -1,53 +1,55 @@
-name: Terraform Apply
+name: Terraform Destroy
 
 on:
   workflow_dispatch:
     inputs:
       environment:
-        description: "Environment to apply"
+        description: "Environment to destroy"
         required: true
         type: choice
         options:
           - dev
         default: dev
-
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'infra/terraform/env/dev/**'
-      - 'infra/terraform/modules/**'
+      confirm:
+        description: 'Type the exact string DESTROY to confirm'
+        required: true
+        type: string
 
 concurrency:
   group: terraform-dev
   cancel-in-progress: false
 
 permissions:
-  contents: read
   id-token: write
+  contents: read
 
 env:
-  TF_WORKING_DIR: infra/terraform/env/dev
   AWS_REGION: eu-west-2
+  TF_WORKING_DIR: infra/terraform/env/dev
 
 jobs:
-  apply:
+  destroy:
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment }}
-    name: Terraform Apply
     defaults:
       run:
-        working-directory: ${{ env.TF_WORKING_DIR }}
-
+        working-directory: infra/terraform/env/${{ github.event.inputs.environment }}
     steps:
+      - name: Verify confirmation string
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "DESTROY" ]; then
+            echo "Confirmation string did not match. Aborting."
+            exit 1
+          fi
+
       - name: Git checkout
         uses: actions/checkout@v4
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: ${{ secrets.AWS_APPLY_ROLE_ARN }}
-          aws-region: ${{ vars.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_DESTROY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Fetch tfvars from S3
         run: aws s3 cp s3://eks-memo-application-eks-441336784821/terraform.tfvars terraform.tfvars
@@ -60,5 +62,5 @@ jobs:
       - name: Terraform init
         run: terraform init
 
-      - name: Terraform apply
-        run: terraform apply --auto-approve
+      - name: Terraform destroy
+        run: terraform destroy -auto-approve
