@@ -29,7 +29,7 @@ spec:
 
       containers:
         - name: memos
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.repository }}@{{ .Values.image.digest }}"
           ports:
             - containerPort: {{ .Values.containerPort }}
 

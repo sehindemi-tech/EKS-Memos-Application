@@ -32,6 +32,11 @@ jobs:
       - name: Repo Checkout
         uses: actions/checkout@v4
 
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: app/memos/Dockerfile
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
@@ -46,12 +51,18 @@ jobs:
         id: tag
         run: echo "image_tag=sha-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
 
-      - name: Build image
-        run: |
-          docker build \
-          -t ${{ vars.ECR_REPOSITORY_URL }}:${{ steps.tag.outputs.image_tag }} \
-          .
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
+      - name: Build image (local, for scanning)
+        uses: docker/build-push-action@v6
+        with:
+          context: ./app/memos
+          push: false
+          load: true
+          tags: ${{ vars.ECR_REPOSITORY_URL }}:${{ steps.tag.outputs.image_tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
       - name: Trivy image Scan
         id: trivy-scan
         uses: aquasecurity/trivy-action@v0.36.0
@@ -64,6 +75,7 @@ jobs:
           exit-code: '1'
           severity: CRITICAL
           ignore-unfixed: true
+
       - name: Publish Trivy Image scan results
         uses: actions/upload-artifact@v4
         if: always()
@@ -80,18 +92,25 @@ jobs:
           else
             echo "### Trivy scan passed, no blocking CRITICAL/HIGH findings" >> "$GITHUB_STEP_SUMMARY"
           fi
+
       - name: Fail if Trivy scan failed
         if: steps.trivy-scan.outcome == 'failure'
         run: exit 1
 
       - name: Push image to ECR
-        run: |
-          docker push ${{ vars.ECR_REPOSITORY_URL }}:${{ steps.tag.outputs.image_tag }}
+        id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: ./app/memos
+          push: true
+          tags: ${{ vars.ECR_REPOSITORY_URL }}:${{ steps.tag.outputs.image_tag }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Bump image tag in Helm values
         working-directory: .
         run: |
-          yq eval '.image.tag = "${{ steps.tag.outputs.image_tag }}"' -i infra/kubernetes/my-chart/memo-app/values.yaml
+                    yq eval '.image.tag = "${{ steps.tag.outputs.image_tag }}" | .image.digest = "${{ steps.push.outputs.digest }}"' -i infra/kubernetes/my-chart/memo-app/values.yaml
 
       - name: Commit and push tag bump
         working-directory: .
@@ -99,6 +118,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add infra/kubernetes/my-chart/memo-app/values.yaml
-          git diff --staged --quiet || git commit -m "ci: bump memos image tag to ${{ steps.tag.outputs.image_tag }}"
+          git diff --staged --quiet || git commit -m "ci: bump memos image to ${{ steps.tag.outputs.image_tag }} (${{ steps.push.outputs.digest }})"
           git pull --rebase origin main
           git push
