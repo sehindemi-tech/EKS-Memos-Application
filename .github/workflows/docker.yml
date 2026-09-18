@@ -63,6 +63,7 @@ jobs:
           tags: ${{ vars.ECR_REPOSITORY_URL }}:${{ steps.tag.outputs.image_tag }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
       - name: Trivy image Scan
         id: trivy-scan
         uses: aquasecurity/trivy-action@v0.36.0

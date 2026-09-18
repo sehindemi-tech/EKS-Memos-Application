@@ -18,7 +18,10 @@ RUN pnpm release
 
 FROM golang:1.27.0-alpine AS backend
 
-RUN apk add --no-cache ca-certificates tzdata git && \
+RUN apk add --no-cache \
+    ca-certificates=20260909-r0 \
+    tzdata=2026d-r0 \
+    git=2.54.0-r0 && \
     adduser -u 10001 -D nonroot
 
 ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
