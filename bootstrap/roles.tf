@@ -52,6 +52,7 @@ data "aws_iam_policy_document" "role_policies" {
       "logs:*",
       "ecr:*",
       "sts:GetCallerIdentity",
+      "route53:*"
     ]
     resources = ["*"]
   }
