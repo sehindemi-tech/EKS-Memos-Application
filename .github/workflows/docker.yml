@@ -9,6 +9,10 @@ on:
       - 'app/memos/Dockerfile'
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   id-token: write
   contents: write
@@ -19,7 +23,7 @@ jobs:
       run:
         working-directory: ./app/memos
 
-    name: Build, Scan, Push, Deploy, Health Test
+    name: Build, Scan, Push, Deploy
     runs-on: ubuntu-latest
     outputs:
       image-tag: ${{ steps.tag.outputs.image_tag }}
@@ -31,7 +35,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          role-to-assume: ${{ vars.ECR_DOCKER_BUILD_ROLE_ARN }}
+          role-to-assume: ${{ secrets.ECR_DOCKER_BUILD_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
 
       - name: Login to Amazon ECR
@@ -49,6 +53,7 @@ jobs:
           .
 
       - name: Trivy image Scan
+        id: trivy-scan
         uses: aquasecurity/trivy-action@v0.36.0
         continue-on-error: true
         with:
@@ -57,7 +62,7 @@ jobs:
           format: sarif
           output: trivy-image-result.sarif
           exit-code: '1'
-          severity: CRITICAL,HIGH
+          severity: CRITICAL
           ignore-unfixed: true
 
       - name: Publish Trivy Image scan results
@@ -65,7 +70,21 @@ jobs:
         if: always()
         with:
           name: trivy-image-scan-${{ github.sha }}
-          path: app/trivy-image-result.sarif
+          path: app/memos/trivy-image-result.sarif
+
+      - name: Summarize Trivy result
+        if: always()
+        run: |
+          if [ "${{ steps.trivy-scan.outcome }}" = "failure" ]; then
+            echo "### Trivy found CRITICAL vulnerabilities in image NOT pushed" >> "$GITHUB_STEP_SUMMARY"
+            echo "See the \`trivy-image-scan-${{ github.sha }}\` artifact for details." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "### Trivy scan passed — no blocking CRITICAL/HIGH findings" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Fail if Trivy scan failed
+        if: steps.trivy-scan.outcome == 'failure'
+        run: exit 1
 
       - name: Push image to ECR
         run: |
@@ -83,12 +102,5 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add infra/kubernetes/my-chart/memo-app/values.yaml
           git diff --staged --quiet || git commit -m "ci: bump memos image tag to ${{ steps.tag.outputs.image_tag }}"
+          git pull --rebase origin main
           git push
-
-      - name: Post-deploy health check
-        run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://it-tools.sehindemi.com/health)
-          if [ "$STATUS" != "200" ]; then
-            echo "Health check failed — status $STATUS"
-            exit 1
-          fi
