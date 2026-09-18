@@ -11,7 +11,7 @@ securityContext:
   runAsNonRoot: true
 image:
   repository: 441336784821.dkr.ecr.eu-west-2.amazonaws.com/eks-memos-application
-  tag: sha-3c67c7c
+  tag: sha-a09bde5
 containerPort: 5230
 dsn:
   secretName: memos-dsn
