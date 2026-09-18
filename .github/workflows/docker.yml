@@ -64,13 +64,12 @@ jobs:
           exit-code: '1'
           severity: CRITICAL
           ignore-unfixed: true
-
       - name: Publish Trivy Image scan results
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: trivy-image-scan-${{ github.sha }}
-          path: app/memos/trivy-image-result.sarif
+          path: trivy-image-result.sarif
 
       - name: Summarize Trivy result
         if: always()
@@ -79,9 +78,8 @@ jobs:
             echo "### Trivy found CRITICAL vulnerabilities in image NOT pushed" >> "$GITHUB_STEP_SUMMARY"
             echo "See the \`trivy-image-scan-${{ github.sha }}\` artifact for details." >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "### Trivy scan passed — no blocking CRITICAL/HIGH findings" >> "$GITHUB_STEP_SUMMARY"
+            echo "### Trivy scan passed, no blocking CRITICAL/HIGH findings" >> "$GITHUB_STEP_SUMMARY"
           fi
-
       - name: Fail if Trivy scan failed
         if: steps.trivy-scan.outcome == 'failure'
         run: exit 1
