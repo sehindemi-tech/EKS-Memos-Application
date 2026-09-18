@@ -1,0 +1,66 @@
+name: Terraform Apply
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to apply (dev/staging/prod)"
+        required: true
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'infra/terraform/env/dev/**'
+      - 'infra/terraform/modules/**'
+
+concurrency:
+  group: terraform-dev
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write
+  security-events: write
+  actions: read
+
+env:
+  TF_WORKING_DIR: infra/terraform/env/dev
+  AWS_REGION: eu-west-2
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    name: Terraform Apply
+    defaults:
+      run:
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_APPLY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Fetch tfvars from S3
+        run: aws s3 cp s3://eks-memo-application-eks-441336784821/terraform.tfvars terraform.tfvars
+
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.15.2"
+
+      - name: Terraform init
+        run: terraform init
+
+      - name: Terraform apply
+        run: terraform apply --auto-approve
