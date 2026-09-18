@@ -9,6 +9,9 @@ on:
       - 'infra/terraform/modules/**'
   workflow_dispatch:
 
+concurrency:
+  group: terraform-dev
+  cancel-in-progress: false
 permissions:
   contents: read
   id-token: write
@@ -37,8 +40,8 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_PLAN_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
-
-
+      - name: Fetch tfvars from S3
+        run: aws s3 cp s3://eks-memo-application-eks-441336784821/terraform.tfvars terraform.tfvars
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
