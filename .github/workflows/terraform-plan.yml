@@ -1,0 +1,157 @@
+name: Terraform Plan, FMT, Init, Validate, TFLint, Trivy
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'infra/terraform/env/dev/**'
+      - 'infra/terraform/modules/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  pull-requests: write
+  security-events: write
+  actions: read
+
+env:
+  TF_WORKING_DIR: infra/terraform/env/dev
+  AWS_REGION: eu-west-2
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    name: Linting, Scanning, Planning
+    defaults:
+      run:
+        working-directory: ${{ env.TF_WORKING_DIR }}
+
+    steps:
+      - name: Git checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_PLAN_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.15.2"
+
+      - name: Terraform Format Check
+        id: fmt
+        run: terraform fmt -check -recursive
+
+      - name: TFLint
+        id: tflint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: v0.63.1
+
+      - name: Run TFLint
+        id: tflint-run
+        working-directory: ${{ env.TF_WORKING_DIR }}
+        run: |
+          tflint --init
+          tflint --recursive --format compact
+
+      - name: Terraform init
+        run: terraform init
+
+      - name: Terraform validate
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Trivy IAC Scan
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: 'config'
+          scan-ref: infra/terraform
+          format: 'sarif'
+          output: trivy-iac-results.sarif
+          exit-code: '1'
+          severity: CRITICAL,HIGH
+          limit-severities-for-sarif: true
+
+      - name: Upload Trivy IaC results to GitHub Security tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-iac-results.sarif
+
+      - name: Publish Trivy IAC scan results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: trivy-iac-scan-${{ github.sha }}
+          path: trivy-iac-results.sarif
+
+      - name: Terraform plan
+        run: |
+          terraform plan -out=tfplan
+          terraform show -no-color tfplan > plan_output.txt
+          terraform show -json tfplan > infra/terraform/env/dev/tfplan.json
+
+      - name: Post or update plan comment on PR
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const planPath = path.join(process.env.TF_WORKING_DIR, 'plan_output.txt');
+            let plan = '';
+            try {
+              plan = fs.readFileSync(planPath, 'utf8');
+            } catch (e) {
+              plan = 'Plan output not available — the job may have failed before the plan step ran.';
+            }
+            if (plan.length > 55000) {
+              plan = plan.slice(0, 55000) + '\n\n... (truncated)';
+            }
+            const marker = '<!-- terraform-plan-comment -->';
+            const body = `${marker}
+            #### Terraform Plan (dev)
+            <details><summary>Show plan</summary>
+
+            \`\`\`terraform
+            ${plan}
+            \`\`\`
+            </details>`;
+
+            const comments = await github.rest.issues.listComments({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+            });
+            const existing = comments.data.find(c => c.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                comment_id: existing.id,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body,
+              });
+            }
+
+      - name: Publish plan artefact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-${{ github.sha }}
+          path: |
+            infra/terraform/env/dev/tfplan
+            infra/terraform/env/dev/tfplan.json
