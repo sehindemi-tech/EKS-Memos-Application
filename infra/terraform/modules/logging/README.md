@@ -29,6 +29,6 @@
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_cloud_watch"></a> [cloud\_watch](#input\_cloud\_watch) | CloudWatch log group settings | <pre>object({<br/>    name              = string<br/>    log_group_class   = string<br/>    retention_in_days = number<br/>  })</pre> | n/a | yes |
-| <a name="input_project_settings"></a> [project\_settings](#input\_project\_settings) | The Default setting for our EKS Memo Project | <pre>object({<br/>    aws_region   = optional(string, "eu-west-2")<br/>    org          = optional(string, "sehindemi-tech")<br/>    github_repo  = optional(string, "eks-memos-application")<br/>    project_name = optional(string, "eks-memos-application")<br/>  })</pre> | `{}` | no |
-| <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | The ID of the VPC | `string` | n/a | yes |
+| <a name="input_project_settings"></a> [project\_settings](#input\_project\_settings) | Naming prefix and repo/org context used across the EKS Memo project's resources | <pre>object({<br/>    aws_region   = optional(string, "eu-west-2")<br/>    org          = optional(string, "sehindemi-tech")<br/>    github_repo  = optional(string, "eks-memos-application")<br/>    project_name = optional(string, "eks-memos-application")<br/>  })</pre> | `{}` | no |
+| <a name="input_vpc_id"></a> [vpc\_id](#input\_vpc\_id) | ID of the VPC everything in this project gets deployed into | `string` | n/a | yes |
 <!-- END_TF_DOCS -->

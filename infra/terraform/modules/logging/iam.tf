@@ -1,5 +1,5 @@
 resource "aws_iam_role" "flow_logs_iam" {
-  description        = "Flow logs IAM role"
+  description        = "VPC Flow logs IAM role"
   name               = "${var.project_settings.project_name}-flow_logs_iam"
   assume_role_policy = data.aws_iam_policy_document.flow_logs_iam_policies.json
 }
