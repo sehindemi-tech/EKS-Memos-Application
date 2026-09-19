@@ -1,5 +1,5 @@
 output "interface_endpoint_sg" {
-  description = "interface endpoint security group id"
+  description = "Interface Endpoint Security Group ID"
   value       = aws_security_group.vpc_interface_endpoints.id
 }
 
@@ -14,6 +14,6 @@ output "kms_key" {
 }
 
 output "rds_sg" {
-  description = "The security group ID for the RDS instance"
+  description = "The Security Group ID for the RDS instance"
   value       = [aws_security_group.rds_sg.id]
 }

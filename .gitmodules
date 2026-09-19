@@ -1,3 +1,0 @@
-[submodule "app/memos"]
-	path = app/memos
-	url = git@github.com:usememos/memos.git

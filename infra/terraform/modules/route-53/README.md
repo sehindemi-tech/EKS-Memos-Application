@@ -24,7 +24,7 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_route53_settings"></a> [route53\_settings](#input\_route53\_settings) | Route 53 Zone for EKS Memo Application | <pre>object({<br/>    name          = string<br/>    force_destroy = optional(bool, false)<br/>  })</pre> | n/a | yes |
+| <a name="input_route53_settings"></a> [route53\_settings](#input\_route53\_settings) | Route 53 hosted zone the EKS Memo app's DNS records get created in | <pre>object({<br/>    name          = string<br/>    force_destroy = optional(bool, false)<br/>  })</pre> | n/a | yes |
 
 ## Outputs
 
