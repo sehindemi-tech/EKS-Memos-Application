@@ -236,7 +236,7 @@ variable "rds_sg_ingress_from_eks" {
 
 
 
-###logging
+##############logging
 ### CloudWatch Log Group for VPC Flow Logs
 variable "cloud_watch" {
   description = "CloudWatch log group settings"
@@ -263,7 +263,7 @@ variable "cloud_watch" {
   }
 }
 
-#####EKS
+##############EKS
 
 variable "eks_cluster_settings" {
   description = "EKS cluster settings for the EKS memo Application"
@@ -382,7 +382,7 @@ variable "grafana_admin_credentials_secret_arn" {
   }
 }
 
-###RDS Module
+###########RDS Module
 
 variable "rds_instance_settings" {
   description = "RDS instance configuration"
