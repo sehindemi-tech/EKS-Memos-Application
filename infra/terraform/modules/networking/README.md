@@ -35,19 +35,19 @@
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_eip_domain"></a> [eip\_domain](#input\_eip\_domain) | VPC domain configuration for Elastic IP | `string` | n/a | yes |
-| <a name="input_gateway_endpoint_settings"></a> [gateway\_endpoint\_settings](#input\_gateway\_endpoint\_settings) | AWS service names for Gateway VPC endpoints (S3, DynamoDB) | `set(string)` | n/a | yes |
+| <a name="input_eip_domain"></a> [eip\_domain](#input\_eip\_domain) | VPC Domain configuration for Elastic IP | `string` | n/a | yes |
+| <a name="input_gateway_endpoint_settings"></a> [gateway\_endpoint\_settings](#input\_gateway\_endpoint\_settings) | AWS service names to create Gateway VPC endpoints for, e.g. s3, dynamodb | `set(string)` | n/a | yes |
 | <a name="input_interface_endpoint_settings"></a> [interface\_endpoint\_settings](#input\_interface\_endpoint\_settings) | AWS service names for Interface VPC endpoints | `set(string)` | n/a | yes |
 | <a name="input_interface_endpoint_sg_id"></a> [interface\_endpoint\_sg\_id](#input\_interface\_endpoint\_sg\_id) | Interface endpoint Security Group ID | `string` | n/a | yes |
-| <a name="input_project_settings"></a> [project\_settings](#input\_project\_settings) | The Default setting for our EKS Memo Project | <pre>object({<br/>    aws_region   = optional(string, "eu-west-2")<br/>    org          = optional(string, "sehindemi-tech")<br/>    github_repo  = optional(string, "eks-memos-application")<br/>    project_name = optional(string, "eks-memos-application")<br/>  })</pre> | `{}` | no |
-| <a name="input_subnet_settings"></a> [subnet\_settings](#input\_subnet\_settings) | Details about the Public & Private vpc subnets | <pre>map(object({<br/>    availability_zone       = optional(string)<br/>    cidr_block              = optional(string)<br/>    map_public_ip_on_launch = optional(bool)<br/>    is_public               = optional(bool)<br/>  }))</pre> | n/a | yes |
-| <a name="input_vpc_settings"></a> [vpc\_settings](#input\_vpc\_settings) | VPC settings for the EKS Memo platform | <pre>object({<br/>    cidr_block           = optional(string)<br/>    enable_dns_hostnames = optional(bool)<br/>    enable_dns_support   = optional(bool)<br/>    vpc_name             = optional(string)<br/>  })</pre> | n/a | yes |
+| <a name="input_project_settings"></a> [project\_settings](#input\_project\_settings) | Naming prefix and repo/org context used across the EKS Memo project's resources | <pre>object({<br/>    aws_region   = optional(string, "eu-west-2")<br/>    org          = optional(string, "sehindemi-tech")<br/>    github_repo  = optional(string, "eks-memos-application")<br/>    project_name = optional(string, "eks-memos-application")<br/>  })</pre> | `{}` | no |
+| <a name="input_subnet_settings"></a> [subnet\_settings](#input\_subnet\_settings) | Details about the Public & Private VPC subnets | <pre>map(object({<br/>    availability_zone       = optional(string)<br/>    cidr_block              = optional(string)<br/>    map_public_ip_on_launch = optional(bool)<br/>    is_public               = optional(bool)<br/>  }))</pre> | n/a | yes |
+| <a name="input_vpc_settings"></a> [vpc\_settings](#input\_vpc\_settings) | Core VPC configuration | <pre>object({<br/>    cidr_block           = optional(string)<br/>    enable_dns_hostnames = optional(bool)<br/>    enable_dns_support   = optional(bool)<br/>    vpc_name             = optional(string)<br/>  })</pre> | n/a | yes |
 
 ## Outputs
 
 | Name | Description |
 |------|-------------|
-| <a name="output_private_subnet_ids"></a> [private\_subnet\_ids](#output\_private\_subnet\_ids) | Private Subnet ID for EKS memo Application |
+| <a name="output_private_subnet_ids"></a> [private\_subnet\_ids](#output\_private\_subnet\_ids) | Private subnet IDs for the EKS Memos Application |
 | <a name="output_subnet_ids"></a> [subnet\_ids](#output\_subnet\_ids) | Subnet ID for both the public and private subnets |
 | <a name="output_vpc_cidr"></a> [vpc\_cidr](#output\_vpc\_cidr) | The CIDR block of the VPC for the EKS Memos Application |
 | <a name="output_vpc_id"></a> [vpc\_id](#output\_vpc\_id) | The ID of the VPC for the EKS Memos Application |
