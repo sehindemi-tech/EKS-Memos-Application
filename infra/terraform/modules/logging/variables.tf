@@ -17,7 +17,7 @@ variable "project_settings" {
 
   validation {
     condition     = length(var.project_settings.project_name) > 0 && length(var.project_settings.project_name) <= 63
-    error_message = "project_name must be between 1 and 63 characters (used as a prefix in resource names, which have length limits)."
+    error_message = "project_name must be between 1 and 63 characters (it's used as a prefix in resource names, which have length limits)."
   }
 
   validation {
