@@ -13,7 +13,7 @@ plugin "terraform" {
 }
 
 tflint {
-  required_version = "0.63.1"
+  required_version = ">=0.55"
 }
 
 rule "terraform_standard_module_structure" {
