@@ -1,16 +1,23 @@
 # Kubernetes Memos-Application on AWS EKS
-![AWS](https://img.shields.io/badge/AWS-EKS%20%7C%20RDS%20%7C%20Lambda-232F3E?style=for-the-badge&logo=amazonaws&logoColor=FF9900)
-![Terraform](https://img.shields.io/badge/Terraform-Infrastructure%20as%20Code-623CE4?style=for-the-badge&logo=terraform&logoColor=white)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-EKS-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)
+## Technology Stack
 
-![Helm](https://img.shields.io/badge/Helm-Charts-0F1689?style=for-the-badge&logo=helm&logoColor=white)
-![GitOps](https://img.shields.io/badge/GitOps-ArgoCD-EF7B4D?style=for-the-badge&logo=argo&logoColor=white)
-![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-Multi--Stage-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+## Tech Stack
 
-![ExternalDNS](https://img.shields.io/badge/ExternalDNS-Automatic%20DNS-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)
-![Cert Manager](https://img.shields.io/badge/Cert--Manager-Let's%20Encrypt-003A70?style=for-the-badge&logo=letsencrypt&logoColor=white)
-![Infracost](https://img.shields.io/badge/Infracost-Cost%20Analysis-DB1F77?style=for-the-badge&logo=infracost&logoColor=white)
+![AWS](https://img.shields.io/badge/AWS-232F3E?style=flat-square&logo=amazonaws&logoColor=FF9900)
+![Terraform](https://img.shields.io/badge/Terraform-232F3E?style=flat-square&logo=terraform&logoColor=844FBA)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-232F3E?style=flat-square&logo=kubernetes&logoColor=326CE5)
+![Helm](https://img.shields.io/badge/Helm-232F3E?style=flat-square&logo=helm&logoColor=white)
+![Argo CD](https://img.shields.io/badge/Argo%20CD-232F3E?style=flat-square&logo=argo&logoColor=EF7B4D)
+![Docker](https://img.shields.io/badge/Docker-232F3E?style=flat-square&logo=docker&logoColor=2496ED)
+![GitHub Actions](https://img.shields.io/badge/GitHub%20Actions-232F3E?style=flat-square&logo=githubactions&logoColor=2088FF)
+![Traefik](https://img.shields.io/badge/Traefik-232F3E?style=flat-square&logo=traefikproxy&logoColor=24A1C1)
+![ExternalDNS](https://img.shields.io/badge/ExternalDNS-232F3E?style=flat-square&logo=amazonroute53&logoColor=8C4FFF)
+![cert-manager](https://img.shields.io/badge/cert--manager-232F3E?style=flat-square&logo=letsencrypt&logoColor=003A70)
+![External Secrets](https://img.shields.io/badge/External%20Secrets-232F3E?style=flat-square&logo=amazonwebservices&logoColor=FF9900)
+![Prometheus](https://img.shields.io/badge/Prometheus-232F3E?style=flat-square&logo=prometheus&logoColor=E6522C)
+![Grafana](https://img.shields.io/badge/Grafana-232F3E?style=flat-square&logo=grafana&logoColor=F46800)
+![Trivy](https://img.shields.io/badge/Trivy-232F3E?style=flat-square&logo=aqua&logoColor=1904DA)
+![OIDC](https://img.shields.io/badge/OIDC-232F3E?style=flat-square&logo=openid&logoColor=F78C40)
+![Pre--Commit](https://img.shields.io/badge/Pre--Commit-232F3E?style=flat-square&logo=precommit&logoColor=FAB040)
 
-![Security](https://img.shields.io/badge/Security-Trivy%20%7C%20Checkov%20%7C%20OIDC%20%7C%20Pre--Commit-4B5563?style=for-the-badge&logo=security&logoColor=white)
 ![alt text](images/Arch-Diag.jpg)
