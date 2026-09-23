@@ -35,16 +35,14 @@ jobs:
       run:
         working-directory: infra/terraform/env/${{ github.event.inputs.environment }}
     steps:
+      - name: Git checkout
+        uses: actions/checkout@v4
       - name: Verify confirmation string
         run: |
           if [ "${{ github.event.inputs.confirm }}" != "DESTROY" ]; then
             echo "Confirmation string did not match. Aborting."
             exit 1
           fi
-
-      - name: Git checkout
-        uses: actions/checkout@v4
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
