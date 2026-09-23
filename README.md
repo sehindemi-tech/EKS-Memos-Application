@@ -363,5 +363,6 @@ There is no manual deployment step anywhere in this pipeline. A merge to mai` is
 
 ### Terraform Apply
 ![alt text](images/terraform-apply.jpg)
-### Terraform Destroy
 
+### Terraform Destroy
+![alt text](images/terraform-destroy.jpg)
