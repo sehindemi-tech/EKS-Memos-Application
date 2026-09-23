@@ -23,13 +23,27 @@
 ![alt text](images/Arch-Diag.jpg)
 
 ## Table of Contents
-* [Tech Stack](#tech-stack)
-* [Architecture](#architecture)
-* [Overview](#overview)
-* [Quick Start](#quickstart)
-* [Platform Demo](#platform-demo)
-* [Design Priorities](#design-priorities)
-* [Architecture Overview](#architecture-overview)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Overview](#overview)
+- [Quick Start](#quick-start)
+- [Platform Demo](#platform-demo)
+- [Design Priorities](#design-priorities)
+- [Architecture Overview](#architecture-overview)
+  - [Bootstrap Infrastructure](#bootstrap-infrastructure)
+  - [Modular Terraform](#modular-terraform)
+  - [Container Build (Docker)](#container-build-docker)
+  - [Kubernetes Platform](#kubernetes-platform)
+  - [Helm & GitOps with Argo CD](#helm--gitops-with-argo-cd)
+  - [App of Apps (Argo CD)](#app-of-apps-argo-cd)
+  - [Secrets Management](#secrets-management)
+  - [Security](#security)
+  - [CI/CD Pipeline](#cicd-pipeline)
+- [Known Limitations and Future Improvements](#known-limitations-and-future-improvements)
+  - [Known Limitations](#known-limitations)
+  - [Future Improvements](#future-improvements)
+- [Screenshots](#screenshots)
+- [Repository Layout](#repository-layout)
 
 
 ## Overview
@@ -302,6 +316,36 @@ There is no manual deployment step anywhere in this pipeline. A merge to mai` is
 - Narrow the wildcard IAM actions on the Terraform role down to what each workflow actually needs.
 
 - Replace the manually-scaled managed node group with Karpenter, so the cluster provisions and right-sizes nodes automatically based on actual pending pod requirements. This would directly solve the t3.small pod density problem this project hit, since Karpenter can pick an appropriately sized instance per workload rather than committing to one instance type for the whole node group up front.
+
+## Screenshots
+### Application running
+![alt text](images/memos-page.png)
+
+### Lets-encrypt certifcate
+![alt text](images/lets-encrypt-cert.jpg)
+
+### ArgoCD
+![alt text](images/argocd-app-1.jpg)
+![alt text](images/argocd-app-2.jpg)
+
+### Grafana Dashboard
+![alt text](images/grafana-cluster-dashboard.jpg)
+
+### Prometheus
+![alt text](images/prometheus-middleware-auth-page.jpg)
+
+![alt text](images/prometheus-target-health.jpg)
+
+## Pipelines
+### Docker Build and Push
+![alt text](images/docker-build-deploy.jpg)
+
+### Terraform Plan
+![alt text](images/terraform-plan.jpg)
+
+### Terraform Apply
+![alt text](images/terraform-apply.jpg)
+### Terraform Destroy
 
 ## Repository layout
 ```
