@@ -60,16 +60,14 @@
     - [Terraform Apply](#terraform-apply)
     - [Terraform Destroy](#terraform-destroy)
 - [Repository Layout](#repository-layout)
-```
+
 
 
 
 ## Overview
-A production-patterned AWS EKS platform, built stage by stage and managed through GitOps. It runs Memos, an open source self-hosted note-taking application, backed by RDS PostgreSQL. Infrastructure is provisioned with Terraform, everything inside the cluster is reconciled by Argo CD from this repository.
+AWS EKS platform running Memos, a self-hosted note-taking app, backed by RDS PostgreSQL. Terraform provisions the infrastructure, Argo CD reconciles everything inside the cluster from this repo.
 
-This project goes beyond deploying an application; it demonstrates how to design cloud infrastructure that is secure, scalable, and repeatable by default. Every layer, from provisioning through application delivery, is defined and managed as code.
-
-The build reflects the architectural decisions that matter in production engineering environments: GitOps-driven deployments, modular and reusable infrastructure, automated secrets management, resilient networking, and security validation integrated throughout the delivery pipeline.
+Built stage by stage, covering the full lifecycle from infrastructure through to application deployment and day-two operations.
 
 ## Quick Start
 Want to test the application locally?
@@ -101,29 +99,23 @@ Stop and remove the container:
 docker stop memos && docker rm memos
 ```
 
-## Platform Demo
-
-TO-do
-
-
-
 ## Design Priorities
 
-* **Modular Terraform**, One module per concern (networking, EKS, RDS, security), so a change to one layer doesn't require reasoning about the whole stack, and any module can be redeployed or replaced independently.
+* **Modular Terraform**, One module per concern: networking, EKS, RDS, security. Any layer can be changed or replaced in isolation.
 
 * **GitOps via Argo CD**, Git as the single source of truth, every cluster change is version-controlled, auditable, and reproducible from the repo alone, not from memory of what was manually applied.
 
 * **Zero standing credentials.**, EKS Pod Identity for every in-cluster workload, GitHub OIDC for every CI workflow, no long-lived AWS access keys anywhere in the project.
 
-* **Fully automated TLS and DNS**, through cert-manager and ExternalDNS, removing manual certificate issuance or DNS record management entirely; every hostname in the cluster resolves and serves HTTPS without a human ever touching Route 53 or a cert file directly.
+* **Fully automated TLS and DNS**,cert-manager and ExternalDNS own certificate issuance and DNS records end to end. Nobody touches Route 53 or a cert file by hand.
 
-* **Recoverability over convenience** Argo CD is deployed and upgraded by Terraform rather than managing itself, so a bad GitOps change can never disable the tool needed to fix it.
+* **Recoverability over convenience** Argo CD is deployed by Terraform, not self-managed. A bad GitOps change can't take down the tool needed to fix it.
 
-* **Least privilege where it matters, deliberate debt where it doesn't.** Fine-grained IAM policies scoped to exact resource ARNs for anything security-sensitive (KMS keys, Secrets Manager entries); broader wildcard actions accepted short-term on lower-risk roles, tracked explicitly rather than left unexamined.
+* **Least privilege where it matters, deliberate debt where it doesn't.** IAM policies for KMS keys and Secrets Manager entries are scoped to exact ARNs. Wildcard actions on lower-risk roles are accepted short-term, and tracked as debt rather than ignored.
 
-* **Verify against reality, not assumption.** Terraform validation blocks check real AWS API constraints, regex-shaped ARNs, actual enum values, rather than generic non-empty checks; several values were confirmed against live AWS documentation mid-build rather than trusted from memory.
+* **Verify against reality, not assumption.**. Terraform validation checks real AWS constraints, ARN formats, enum values, not generic non-empty checks. Several were confirmed against live documentation mid-build.
 
-* **Security scanning built into CI, not bolted on after.** Trivy scans both Terraform and the built container image before anything reaches the cluster; Hadolint and TFLint catch structural issues in the Dockerfile and Terraform before they're even planned.
+* **Security scanning built into CI, not bolted on after.** Trivy scans Terraform and the image before anything reaches the cluster. Hadolint and TFLint catch structural issues before a plan even runs.
 
 
 ## Architecture Overview
@@ -132,66 +124,64 @@ The platform is composed of several layers that work together to automate infras
 
 ### Bootstrap Infrastructure
 
-The infrastructure is intentionally divided into two Terraform layers: bootstrap and infra.
+Infrastructure is split into two Terraform layers: bootstrap and main.
 
-The bootstrap layer creates resources that must already exist before the infrastructure can be deployed, including:
+Bootstrap creates what has to exist before the main config can run:
 
-- Terraform remote state storage (S3, with native state locking)
+- S3 remote state storage, native state locking
 - Amazon ECR
-- GitHub OIDC authentication (provider and roles)
+- GitHub OIDC provider and roles
 
-Separating bootstrap resources from workload infrastructure avoids a circular dependency: the main configuration's S3 backend can't exist until the bucket itself has been created by something else first. Managing these foundational resources as code, rather than clicking them into existence once by hand, keeps the platform reproducible from a clean AWS account.
+This avoids the obvious circular dependency: the main config's S3 backend can't exist until something creates the bucket first. Running it as code instead of clicking through the console once means the whole platform is reproducible from a blank AWS account.
 
 **Why this matters**
 
-Bootstrap resources rarely change and rarely need to be destroyed alongside everything else; keeping them in a separate state means a full terraform destroy of the main infrastructure doesn't take the state bucket or OIDC trust out from under itself.
+Bootstrap resources also rarely change and rarely need tearing down. Keeping them in separate state means a full terraform destroy of the main stack doesn't take the state bucket or OIDC trust with it.
 
 ### Modular Terraform
 
-Rather than one large configuration, the project is organised into modules by concern:
+Organised into modules by concern rather than one flat configuration:
 
 - Networking (VPC, subnets, NAT, VPC endpoints)
-- EKS (cluster, node group, add-ons, access entries)
+- EKS: Cluster, node group, add-ons, access entries
 - RDS
-- Security (security groups)
+- Security: Security groups
 - Pod Identity
 
 **Why this matters**
-
 A change to one layer, such as resizing the node group or adjusting an RDS parameter, doesn't require reasoning about the whole stack, and each module can be planned or reasoned about independently.
 
 ### Container Build (Docker)
 
-Memos is built using a multi-stage Docker build that separates frontend and backend compilation from the final runtime image.
+Multi-stage Docker build, frontend and backend compiled separately from the final runtime image:
 
 The build process:
 
 - Compiles the Vite/TypeScript frontend with Node and pnpm.
-
 - Compiles the Go backend, with the frontend embedded into the binary via go:embed.
 - Final stage is using scratch, containing only the compiled binary and its TLS certificate bundle.
 - Runs as a non-root user (UID 10001).
 
 **Why this matters**
 
-- Smaller deployment artifact; no OS, no package manager, no shell.
+- Smaller deployment artifact, no OS, no package manager, no shell.
 
-- Reduced attack surface; there is nothing in the image an attacker could use beyond the application itself.
+- Reduced attack surface, there is nothing in the image an attacker could use beyond the application itself.
 
 - go:embed removes the need to ship or mount frontend assets separately from the binary that serves them.
 
 ### Kubernetes Platform
 
-Amazon EKS is the orchestration platform. Supporting components provide ingress, certificate management, DNS automation, secret synchronisation, monitoring, and GitOps deployment:
+EKS is the orchestration layer. Everything else is a Kubernetes component running on top of it, each with one job:
 
-- Traefik (ingress)
-- cert-manager
-- ExternalDNS
-- External Secrets Operator
-- kube-prometheus-stack (Prometheus, Grafana)
-- Argo CD
+- Traefik: ingress
+- Cert-manager: certificates
+- ExternalDNS: DNS records
+- External Secrets Operator: secret sync
+- Kube-prometheus-stack: Prometheus, Grafana
+- Argo CD: reconciliation
 
-Rather than installing each component by hand, every one of them is deployed and reconciled declaratively through Argo CD, so the cluster's running state can be reproduced from Git.
+Nothing here is installed by hand. Argo CD deploys and reconciles all of it from Git, so the cluster's state is reproducible, not remembered.
 
 **Why this matters**
 
@@ -199,82 +189,75 @@ Each component has one clear responsibility. Ingress, TLS, DNS, and secrets are 
 
 ### Helm & GitOps with Argo CD
 
-Third-party components (Traefik, cert-manager, ExternalDNS, External Secrets, kube-prometheus-stack) are deployed as Helm charts with a values overlay from this repository. Memos is packaged as its own custom Helm chart, managing:
+Third-party components are Helm charts with a values overlay from this repo. Memos is its own custom chart, managing Deployment, Service, Ingress, and the ExternalSecret for its database DSN.
 
-- Deployment
-- Service
-- Ingress
-- ExternalSecret (database DSN)
+Every Argo CD Application runs the same three settings: automated sync, self-heal, and prune. Drift gets reverted, resources removed from Git get deleted, nothing needs a manual sync.
 
-Every Application is configured with:
-
-- Automated synchronisation
-- Self-healing (drift introduced outside Git is reverted automatically)
-- Automatic pruning of resources removed from Git
 
 **Why this matters**
 
 Git becomes the single source of truth. A kubectl edit against a live resource doesn't stick; Argo CD reverts it on the next reconciliation pass. Every change to the cluster's state has a corresponding commit.
 
 ### App of Apps(Argo CD)
-- A single root Application, applied once and manually via kubectl apply, is the only object ever applied directly to the cluster
-- The root Application points at argo-cd/apps/ in this repo; Argo CD discovers every file there and manages each one as its own child Application, syncing continuously with no further manual intervention
+- One root Application, applied once by hand with kubectl apply. It's the only object ever applied directly to the cluster.
+
+- The root Application points at argo-cd/apps/ in this repo, Argo CD discovers every file there and manages each one as its own child Application, syncing continuously with no further manual intervention
 
 - Child Applications fall into three shapes: third-party Helm charts with a values overlay from values/, plain manifests with no upstream chart from infrastructure/, and the Memos chart in my-chart/
+
 - prune: true and selfHeal: true are set on every Application, so removing a file from Git deletes the resource, and manual drift on a live resource gets reverted automatically
 
 > **Note**
-> Dependencies between Applications are ordered with sync waves rather than left implicit. The ClusterIssuer Application waits for cert-manager's CRDs to exist; the ClusterSecretStore Application waits for External Secrets' CRDs. Without this, an Application can fail its first sync simply because the CRD it depends on hasn't landed yet.
+>Sync waves order the dependencies that actually need it. ClusterIssuer waits for cert-manager's CRDs; ClusterSecretStore waits for External Secrets' CRDs. Skip this and an Application can fail its first sync just because the CRD it needs hasn't landed yet.
 
 **Why this matters**
-Every component in the cluster, from Traefik to Memos itself, is added by committing a file, not by running a command against the cluster. A full rebuild only ever needs one manual step; everything after that is Argo CD reading the same repo a human would read.
+Every component, Traefik through Memos, gets added by committing a file, not running a command. Rebuilding the cluster needs exactly one manual step; Argo CD does the rest by reading the same repo you would.
 
 ### Secrets Management
 
-Sensitive configuration is never committed to Git and never stored in plaintext in Terraform state.
+Nothing sensitive is committed to Git or stored in plaintext in Terraform state.
 
-- RDS database credentials are generated and stored by AWS using manage_master_user_password, encrypted with a KMS key.
+- RDS credentials: generated and stored by AWS (manage_master_user_password), encrypted with KMS.
 
-- External Secrets Operator retrieves credentials from Secrets Manager and materialises them as Kubernetes Secrets.
+- External Secrets Operator reads them from Secrets Manager, writes them as Kubernetes Secrets.
 
 - Deployments consume secrets through environment variables sourced from those Secrets.
 
-- Access from External Secrets' IAM role to the KMS key and Secrets Manager entry is scoped to the specific secret ARN, not the account's secrets broadly
+- External Secrets' IAM role is scoped to the specific secret ARN and KMS key, not the account's secrets broadly
 
 **Why this matters**
-
-The database password never appears in a .tf file, a terraform plan diff, or a Kubernetes manifest it's generated by AWS, read by a scoped IAM role, and synced automatically.
+The database password never touches a .tf file, a terraform plan diff, or a manifest. AWS generates it, a scoped role reads it, sync keeps it current.
 
 
 ### Security
 
 Security was built in throughout rather than added afterwards:
 
-- GitHub OIDC authentication, no long-lived AWS credentials anywhere in CI.
+- GitHub OIDC for CI, no long-lived AWS credentials anywhere
 
-- IAM Pod Identity scoped per workload, per (namespace, service_account) pair.
+- Pod Identity scoped per workload, per (namespace, service_account) pair
 
-- KMS encryption on Secrets Manager entries.
+- KMS encryption on every Secrets Manager entry
 
-- Dockerfile linting (Hadolint).
+- Hadolint on the Dockerfile
 
-- Container image scanning (Trivy, CRITICAL findings block the pipeline).
+- Trivy on the built image, CRITICAL findings block the pipeline
 
-- Infrastructure-as-code scanning (Trivy).
+- Trivy on Terraform
 
-- Private, non-publicly-accessible RDS instance.
+- RDS is private, not publicly accessible
 
-- Automatic HTTPS certificates via cert-manager, with automated renewal.
+- Cert-manager issues and renews HTTPS certificates automatically
 
-- Non-root application container (UID 10001, runAsNonRoot enforced).
+- Application container runs non-root, UID 10001, runAsNonRoot enforced
 
-- Secret scanning before commits reach the remote repository (Gitleaks).
+- Gitleaks before a commit reaches the remote
 
-- Local pre-commit hooks running the same checks before a push.
+- Pre-commit hooks run the same checks locally, before any of that
 
 **Why this matters**
 
-These controls catch problems before they reach the cluster rather than after; a leaked secret is caught locally, a vulnerable image is caught in CI, and a compromised build pipeline has no path to infrastructure because it authenticates through a separate, narrowly scoped OIDC role from the one Terraform uses.
+A leaked secret gets caught locally. A vulnerable image gets caught in CI. A compromised build pipeline still can't reach infrastructure: it authenticates through its own narrowly scoped OIDC role, separate from the one Terraform uses.
 
 ### CI/CD Pipeline
 
@@ -288,7 +271,7 @@ GitHub Actions automates delivery:
 
 - The build workflow commits the new image tag and digest back into the Memos chart's values.yaml, which Argo CD then picks up and syncs automatically
 
-- Authentication to AWS throughout is via GitHub's OIDC integration, using separate roles for the Terraform and image-build workflows
+- AWS auth throughout is GitHub OIDC, separate roles for Terraform and image builds.
 
 **Why this matters**
 
@@ -314,7 +297,7 @@ There is no manual deployment step anywhere in this pipeline. A merge to mai` is
 
 - **No SSM access on worker nodes**, so a node-level failure like the unexplained Spot NotReady incident can't be investigated at the kubelet level.
 
-- **Node scaling is manual.** Capacity issues during this project were resolved by adding nodes by hand rather than the cluster reacting on its own via karpenter.
+- **Node scaling is manual.** Capacity issues during this project were resolved by adding nodes by hand rather than the cluster reacting on its own via Karpenter.
 
 
 ### Future Improvements
@@ -333,16 +316,20 @@ There is no manual deployment step anywhere in this pipeline. A merge to mai` is
 
 - Narrow the wildcard IAM actions on the Terraform role down to what each workflow actually needs.
 
-- Replace the manually-scaled managed node group with Karpenter, so the cluster provisions and right-sizes nodes automatically based on actual pending pod requirements. This would directly solve the t3.small pod density problem this project hit, since Karpenter can pick an appropriately sized instance per workload rather than committing to one instance type for the whole node group up front.
+- Replace the manually-scaled managed node group with Karpenter, so the cluster provisions and right-sizes nodes automatically based on actual pending pod requirements. This would directly solve the `t3.small` pod density problem this project hit, since Karpenter can pick an appropriately sized instance per workload rather than committing to one instance type for the whole node group up front.
 
 # Screenshots
+
 ## Application running
+### Demo
+![alt text](images/platform-demo.gif)
 ![alt text](images/memos-page.png)
 
 ## Lets-encrypt certifcate
 ![alt text](images/lets-encrypt-cert.jpg)
 
 ## ArgoCD
+
 ### Apps of Apps root
 ![alt text](images/argocd-apps-of-apps.jpg)
 
