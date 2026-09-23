@@ -23,6 +23,7 @@
 ![alt text](images/Arch-Diag.jpg)
 
 ## Table of Contents
+
 - [Tech Stack](#tech-stack)
 - [Architecture](#architecture)
 - [Overview](#overview)
@@ -35,7 +36,7 @@
   - [Container Build (Docker)](#container-build-docker)
   - [Kubernetes Platform](#kubernetes-platform)
   - [Helm & GitOps with Argo CD](#helm--gitops-with-argo-cd)
-  - [App of Apps (Argo CD)](#app-of-apps-argo-cd)
+  - [App of Apps (Argo CD)](#app-of-appsargo-cd)
   - [Secrets Management](#secrets-management)
   - [Security](#security)
   - [CI/CD Pipeline](#cicd-pipeline)
@@ -43,7 +44,24 @@
   - [Known Limitations](#known-limitations)
   - [Future Improvements](#future-improvements)
 - [Screenshots](#screenshots)
+  - [Application Running](#application-running)
+  - [Lets-encrypt Certificate](#lets-encrypt-certifcate)
+  - [ArgoCD](#argocd)
+    - [Apps of Apps Root](#apps-of-apps-root)
+    - [ArgoCD Applications](#argocd-applications)
+    - [Memos ArgoCD Application](#memos-argocd-application)
+  - [Grafana Dashboard](#grafana-dashboard)
+    - [Cluster Dashboard](#cluster-dashboard)
+  - [Prometheus](#prometheus)
+    - [Prometheus Middleware Auth Page](#prometheus-middle-ware-auth-page)
+  - [Pipelines](#pipelines)
+    - [Docker Build and Push](#docker-build-and-push)
+    - [Terraform Plan](#terraform-plan)
+    - [Terraform Apply](#terraform-apply)
+    - [Terraform Destroy](#terraform-destroy)
 - [Repository Layout](#repository-layout)
+```
+
 
 
 ## Overview
