@@ -317,21 +317,30 @@ There is no manual deployment step anywhere in this pipeline. A merge to mai` is
 
 - Replace the manually-scaled managed node group with Karpenter, so the cluster provisions and right-sizes nodes automatically based on actual pending pod requirements. This would directly solve the t3.small pod density problem this project hit, since Karpenter can pick an appropriately sized instance per workload rather than committing to one instance type for the whole node group up front.
 
-## Screenshots
-### Application running
+# Screenshots
+## Application running
 ![alt text](images/memos-page.png)
 
-### Lets-encrypt certifcate
+## Lets-encrypt certifcate
 ![alt text](images/lets-encrypt-cert.jpg)
 
-### ArgoCD
+## ArgoCD
+### Apps of Apps root
+![alt text](images/argocd-apps-of-apps.jpg)
+
+### Argocd Applications
 ![alt text](images/argocd-app-1.jpg)
 ![alt text](images/argocd-app-2.jpg)
 
-### Grafana Dashboard
+### Memos ArgoCD Application
+![alt text](images/memos-argocd-app.jpg)
+
+## Grafana Dashboard
+### Cluster Dashboard
 ![alt text](images/grafana-cluster-dashboard.jpg)
 
-### Prometheus
+## Prometheus
+### Prometheus Middle ware auth page
 ![alt text](images/prometheus-middleware-auth-page.jpg)
 
 ![alt text](images/prometheus-target-health.jpg)
