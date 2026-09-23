@@ -134,7 +134,7 @@ Bootstrap creates what has to exist before the main config can run:
 
 This avoids the obvious circular dependency: the main config's S3 backend can't exist until something creates the bucket first. Running it as code instead of clicking through the console once means the whole platform is reproducible from a blank AWS account.
 
-**Why this matters**
+**Why this matters?**
 
 Bootstrap resources also rarely change and rarely need tearing down. Keeping them in separate state means a full terraform destroy of the main stack doesn't take the state bucket or OIDC trust with it.
 
@@ -148,7 +148,8 @@ Organised into modules by concern rather than one flat configuration:
 - Security: Security groups
 - Pod Identity
 
-**Why this matters**
+**Why this matters?**
+
 A change to one layer, such as resizing the node group or adjusting an RDS parameter, doesn't require reasoning about the whole stack, and each module can be planned or reasoned about independently.
 
 ### Container Build (Docker)
@@ -162,7 +163,7 @@ The build process:
 - Final stage is using scratch, containing only the compiled binary and its TLS certificate bundle.
 - Runs as a non-root user (UID 10001).
 
-**Why this matters**
+**Why this matters?**
 
 - Smaller deployment artifact, no OS, no package manager, no shell.
 
@@ -183,7 +184,7 @@ EKS is the orchestration layer. Everything else is a Kubernetes component runnin
 
 Nothing here is installed by hand. Argo CD deploys and reconciles all of it from Git, so the cluster's state is reproducible, not remembered.
 
-**Why this matters**
+**Why this matters?**
 
 Each component has one clear responsibility. Ingress, TLS, DNS, and secrets are handled by separate, independently replaceable tools rather than one monolithic layer, which keeps the failure surface of any single incident contained to the component that owns it.
 
@@ -194,7 +195,7 @@ Third-party components are Helm charts with a values overlay from this repo. Mem
 Every Argo CD Application runs the same three settings: automated sync, self-heal, and prune. Drift gets reverted, resources removed from Git get deleted, nothing needs a manual sync.
 
 
-**Why this matters**
+**Why this matters?**
 
 Git becomes the single source of truth. A kubectl edit against a live resource doesn't stick; Argo CD reverts it on the next reconciliation pass. Every change to the cluster's state has a corresponding commit.
 
@@ -208,9 +209,10 @@ Git becomes the single source of truth. A kubectl edit against a live resource d
 - prune: true and selfHeal: true are set on every Application, so removing a file from Git deletes the resource, and manual drift on a live resource gets reverted automatically
 
 > **Note**
->Sync waves order the dependencies that actually need it. ClusterIssuer waits for cert-manager's CRDs; ClusterSecretStore waits for External Secrets' CRDs. Skip this and an Application can fail its first sync just because the CRD it needs hasn't landed yet.
+Sync waves order the dependencies that actually need it. ClusterIssuer waits for cert-manager's CRDs; ClusterSecretStore waits for External Secrets' CRDs. Skip this and an Application can fail its first sync just because the CRD it needs hasn't landed yet.
 
-**Why this matters**
+**Why this matters?**
+
 Every component, Traefik through Memos, gets added by committing a file, not running a command. Rebuilding the cluster needs exactly one manual step; Argo CD does the rest by reading the same repo you would.
 
 ### Secrets Management
@@ -225,7 +227,8 @@ Nothing sensitive is committed to Git or stored in plaintext in Terraform state.
 
 - External Secrets' IAM role is scoped to the specific secret ARN and KMS key, not the account's secrets broadly
 
-**Why this matters**
+**Why this matters?**
+
 The database password never touches a .tf file, a terraform plan diff, or a manifest. AWS generates it, a scoped role reads it, sync keeps it current.
 
 
@@ -255,7 +258,7 @@ Security was built in throughout rather than added afterwards:
 
 - Pre-commit hooks run the same checks locally, before any of that
 
-**Why this matters**
+**Why this matters?**
 
 A leaked secret gets caught locally. A vulnerable image gets caught in CI. A compromised build pipeline still can't reach infrastructure: it authenticates through its own narrowly scoped OIDC role, separate from the one Terraform uses.
 
@@ -273,7 +276,7 @@ GitHub Actions automates delivery:
 
 - AWS auth throughout is GitHub OIDC, separate roles for Terraform and image builds.
 
-**Why this matters**
+**Why this matters?**
 
 There is no manual deployment step anywhere in this pipeline. A merge to mai` is the only action a human takes, everything from validation through to the running pod is automated and auditable from the commit history.
 
@@ -335,6 +338,7 @@ There is no manual deployment step anywhere in this pipeline. A merge to mai` is
 
 ### Argocd Applications
 ![alt text](images/argocd-app-1.jpg)
+
 ![alt text](images/argocd-app-2.jpg)
 
 ### Memos ArgoCD Application
@@ -350,6 +354,9 @@ There is no manual deployment step anywhere in this pipeline. A merge to mai` is
 
 ![alt text](images/prometheus-target-health.jpg)
 
+## ArgoCD, Grafana & Prometheus Demo
+![alt text](images/Argocd-Grafana-Prometheus-Demo.gif)
+
 ## Pipelines
 ### Docker Build and Push
 ![alt text](images/docker-build-deploy.jpg)
@@ -361,22 +368,3 @@ There is no manual deployment step anywhere in this pipeline. A merge to mai` is
 ![alt text](images/terraform-apply.jpg)
 ### Terraform Destroy
 
-## Repository layout
-```
-.
-├── .github/workflows/   - Terraform plan/apply/destroy, image build and push
-├── app/                 - Memos source, Dockerfile and DockerCompose file
-├── bootstrap/           - State bucket, ECR, KMS, GitHub OIDC provider and roles
-└── infra/
-    ├── terraform/
-    │   ├── env/dev/     - Root configuration, backend, module calls
-    │   └── modules/     - networking, security, eks, rds, logging, route-53
-    └── kubernetes/
-        ├── argo-cd/
-        │   ├── root.yml  - App-of-apps applied manually once
-        │   └── apps/     - One Argo CD Application per component
-        ├── values/       - Value overlays for third-party charts only
-        ├── manifests/    - In-house cluster config, plain YAML (no chart)
-        ├── monitoring/   - Monitoring ingress, middleware and ExternalSecrets
-        └── my-chart/memo-app/  - Memos Helm chart
-```
