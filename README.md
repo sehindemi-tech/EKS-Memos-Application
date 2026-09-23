@@ -284,8 +284,6 @@ There is no manual deployment step anywhere in this pipeline. A merge to mai` is
 
 ### Known Limitations
 
-- **t3.small node instance type caps pod density at 11 per node.** Four unavoidable per-node system DaemonSets already eat into that before any real workload gets scheduled. This caused an actual incident: a DaemonSet pod sat Pending indefinitely because it was pinned to one specific node that was already full.
-
 - **Spot instances carry interruption risk for stateful workloads.** A Spot interruption took a node NotReady while it happened to be hosting external-secrets-webhook, which briefly broke every ExternalSecret operation cluster-wide until it rescheduled.
 
 - **Single NAT Gateway is a cost decision, not a resilience one.** All three AZs route their egress through it, so an outage in its AZ takes down egress for the whole cluster. VPC endpoints for S3, STS, and ECR reduce reliance on it but don't remove the risk.
@@ -301,7 +299,6 @@ There is no manual deployment step anywhere in this pipeline. A merge to mai` is
 - **No SSM access on worker nodes**, so a node-level failure like the unexplained Spot NotReady incident can't be investigated at the kubelet level.
 
 - **Node scaling is manual.** Capacity issues during this project were resolved by adding nodes by hand rather than the cluster reacting on its own via Karpenter.
-
 
 ### Future Improvements
 
@@ -319,7 +316,7 @@ There is no manual deployment step anywhere in this pipeline. A merge to mai` is
 
 - Narrow the wildcard IAM actions on the Terraform role down to what each workflow actually needs.
 
-- Replace the manually-scaled managed node group with Karpenter, so the cluster provisions and right-sizes nodes automatically based on actual pending pod requirements. This would directly solve the `t3.small` pod density problem this project hit, since Karpenter can pick an appropriately sized instance per workload rather than committing to one instance type for the whole node group up front.
+- Replace the manually-scaled managed node group with Karpenter, so the cluster provisions and right-sizes nodes automatically based on actual pending pod requirements.
 
 # Screenshots
 
