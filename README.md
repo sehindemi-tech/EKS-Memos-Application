@@ -28,6 +28,9 @@
 * [Overview](#overview)
 * [Quick Start](#quickstart)
 * [Platform Demo](#platform-demo)
+* [Design Priorities](#design-priorities)
+* [Architecture Overview](#architecture-overview)
+
 
 ## Overview
 A production-patterned AWS EKS platform, built stage by stage and managed through GitOps. It runs Memos, an open source self-hosted note-taking application, backed by RDS PostgreSQL. Infrastructure is provisioned with Terraform, everything inside the cluster is reconciled by Argo CD from this repository.
@@ -73,6 +76,7 @@ TO-do
 
 
 ## Design Priorities
+
 * **Modular Terraform**, One module per concern (networking, EKS, RDS, security), so a change to one layer doesn't require reasoning about the whole stack, and any module can be redeployed or replaced independently.
 
 * **GitOps via Argo CD**, Git as the single source of truth, every cluster change is version-controlled, auditable, and reproducible from the repo alone, not from memory of what was manually applied.
@@ -94,83 +98,194 @@ TO-do
 
 The platform is composed of several layers that work together to automate infrastructure provisioning and application delivery end to end.
 
-### Application
-- **Memos image**: Made use of custom multi-stage build: Node/pnpm compiles the frontend, Go compiles the backend and embeds the compiled frontend via go:embed, final stage is scratch running as non-root UID 10001.
-- **PostgreSQL database**: RDS-hosted, backs Memos as its sole data store; connection string assembled from the RDS-managed master secret.
-- **Docker multi-stage build**:  Separates build tooling from the runtime image, so nothing but the compiled binary and its cert bundle ships in the final container.
+### Bootstrap Infrastructure
 
-### Infrastructure
-- **AWS EKS**: The cluster every workload runs on, managed node group with Pod Identity enabled.
+The infrastructure is intentionally divided into two Terraform layers: bootstrap and infra.
 
-- **AWS RDS PostgreSQL**: Private, single-AZ instance backing Memos reachable only from the cluster's security group.
+The bootstrap layer creates resources that must already exist before the infrastructure can be deployed, including:
 
-- **AWS VPC**: Two-AZ network the cluster and RDS live in, with public/private subnet split.
+- Terraform remote state storage (S3, with native state locking)
+- Amazon ECR
+- GitHub OIDC authentication (provider and roles)
 
-- **Security Groups**: Scope RDS access to the cluster SG only, the EKS cluster role's own policy handles NLB provisioning without a separate node-role rule.
+Separating bootstrap resources from workload infrastructure avoids a circular dependency: the main configuration's S3 backend can't exist until the bucket itself has been created by something else first. Managing these foundational resources as code, rather than clicking them into existence once by hand, keeps the platform reproducible from a clean AWS account.
 
-- **AWS Secrets Manager**: Stores the RDS master credentials and the monitoring basic-auth credentials, source of truth for everything External Secrets syncs into the cluster.
+**Why this matters**
 
-- **AWS KMS**: Encrypts the Secrets Manager entries at rest, External Secrets' IAM role needed explicit kms:Decrypt to read them.
+Bootstrap resources rarely change and rarely need to be destroyed alongside everything else; keeping them in a separate state means a full `terraform destroy` of the main infrastructure doesn't take the state bucket or OIDC trust out from under itself.
 
-- **IAM Roles for Pod Identity**: One role per workload (cert-manager, ExternalDNS, External Secrets, EBS CSI), each bound to an exact namespace, service_account pair via aws_eks_pod_identity_association.
+### Modular Terraform
 
-- **AWS S3 bucket for Terraform state and locking**: Holds remote state with native S3 locking use_lockfile = true, also used to store the gitignored .tfvars file fetched during CI runs.
+Rather than one large configuration, the project is organised into modules by concern:
 
-- **CloudWatch**: Control-plane logging and general log/metric collection outside the Prometheus stack.
+- Networking (VPC, subnets, NAT, VPC endpoints)
+- EKS (cluster, node group, add-ons, access entries)
+- RDS
+- Security (security groups)
+- Pod Identity
 
-- **IAM**: Underlies every AWS-facing permission in the project: Pod Identity roles, the GitHub OIDC roles, the EKS cluster/node roles.
+**Why this matters**
 
-- **Networking**: The VPC, subnet, and route table layer everything else sits on top of.
+A change to one layer, such as resizing the node group or adjusting an RDS parameter, doesn't require reasoning about the whole stack, and each module can be planned or reasoned about independently.
 
-- **VPC endpoints**: S3 gateway plus STS/ECR interface endpoints, keeping state access, Pod Identity token exchange, and image pulls off the single NAT Gateway.
+### Container Build (Docker)
 
-- **Route 53**: Hosts the DNS zone, ExternalDNS writes records into it, cert-manager writes and cleans up ACME DNS-01 challenge TXT records here too.
+Memos is built using a multi-stage Docker build that separates frontend and backend compilation from the final runtime image.
 
-### EKS Infrastructure
-- **Helm**: The packaging format every in-cluster component (Traefik, cert-manager, External Secrets, kube-prometheus-stack) is installed through, rendered by Argo CD.
+The build process:
 
-- **Argo CD (app-of-apps)**: The GitOps controller, one root Application discovers and syncs every other Application in the repo(Apps of Apps), in sync-wave order where dependencies require it.
+- Compiles the Vite/TypeScript frontend with Node and pnpm
+- Compiles the Go backend, with the frontend embedded into the binary via `go:embed`
+- Final stage is `scratch`, containing only the compiled binary and its TLS certificate bundle
+- Runs as a non-root user (UID `10001`)
 
-- **ExternalDNS**: Watches Ingress objects and creates the matching Route 53 records automatically; no DNS entry in this project was created by hand.
+**Why this matters**
 
-- **Cert-manager**: Issues and renews TLS certificates via Let's Encrypt, using DNS-01 challenges against Route 53.
+- Smaller deployment artifact; no OS, no package manager, no shell
+- Reduced attack surface; there is nothing in the image an attacker could use beyond the application itself
+- `go:embed` removes the need to ship or mount frontend assets separately from the binary that serves them
 
-- **Traefik Ingress**: Terminates TLS at the edge and routes every hostname to its backend Service, fronted by an NLB the cluster's IAM role provisions automatically.
+### Kubernetes Platform
 
-- **External Secrets Operator**: Pulls credentials from Secrets Manager and materializes them as Kubernetes Secrets, kept in sync on a refresh interval.
+Amazon EKS is the orchestration platform. Supporting components provide ingress, certificate management, DNS automation, secret synchronisation, monitoring, and GitOps deployment:
 
-### Observability
-- **Grafana**: Dashboards for cluster and node metrics, deployed as part of kube-prometheus-stack, protected by its own login.
+- Traefik (ingress)
+- cert-manager
+- ExternalDNS
+- External Secrets Operator
+- kube-prometheus-stack (Prometheus, Grafana)
+- Argo CD
 
-- **Prometheus**: Scrapes cluster and node metrics via kube-state-metrics and node-exporter; sits behind a Traefik basic-auth Middleware since it has no built-in authentication.
+Rather than installing each component by hand, every one of them is deployed and reconciled declaratively through Argo CD, so the cluster's running state can be reproduced from Git.
 
-- **CloudWatch**: Separate from the Prometheus stack; covers control-plane logs and any AWS-side signals Prometheus doesn't reach.
+**Why this matters**
+
+Each component has one clear responsibility. Ingress, TLS, DNS, and secrets are handled by separate, independently replaceable tools rather than one monolithic layer, which keeps the failure surface of any single incident contained to the component that owns it.
+
+### Helm & GitOps with Argo CD
+
+Third-party components (Traefik, cert-manager, ExternalDNS, External Secrets, kube-prometheus-stack) are deployed as Helm charts with a values overlay from this repository. Memos is packaged as its own custom Helm chart, managing:
+
+- Deployment
+- Service
+- Ingress
+- ExternalSecret (database DSN)
+
+Every Application is configured with:
+
+- Automated synchronisation
+- Self-healing (drift introduced outside Git is reverted automatically)
+- Automatic pruning of resources removed from Git
+
+**Why this matters**
+
+Git becomes the single source of truth. A `kubectl edit` against a live resource doesn't stick; Argo CD reverts it on the next reconciliation pass. Every change to the cluster's state has a corresponding commit.
+
+### Secrets Management
+
+Sensitive configuration is never committed to Git and never stored in plaintext in Terraform state.
+
+- RDS database credentials are generated and stored by AWS using `manage_master_user_password`, encrypted with a KMS key
+- External Secrets Operator retrieves credentials from Secrets Manager and materialises them as Kubernetes Secrets
+- Deployments consume secrets through environment variables sourced from those Secrets
+- Access from External Secrets' IAM role to the KMS key and Secrets Manager entry is scoped to the specific secret ARN, not the account's secrets broadly
+
+**Why this matters**
+
+The database password never appears in a `.tf` file, a `terraform plan` diff, or a Kubernetes manifest it's generated by AWS, read by a scoped IAM role, and synced automatically.
+
 
 ### Security
-- **Pre-commit hooks**: Run hooks locally to test security,linting, formating before pushing to repository.
 
-- **GitHub OIDC authentication**: Every CI workflow assumes an AWS role via OIDC; no long-lived AWS access keys exist anywhere in the pipeline.
+Security was built in throughout rather than added afterwards:
 
-- **Trivy**: Scans both Terraform (IaC) and the built Docker image, uploading SARIF results to GitHub's Security tab; the image scan blocks on CRITICAL findings.
+- GitHub OIDC authentication, no long-lived AWS credentials anywhere in CI.
+- IAM Pod Identity scoped per workload, per `(namespace, service_account)` pair.
+- KMS encryption on Secrets Manager entries.
+- Dockerfile linting (Hadolint).
+- Container image scanning (Trivy; `CRITICAL` findings block the pipeline).
+- Infrastructure-as-code scanning (Trivy).
+- Private, non-publicly-accessible RDS instance.
+- Automatic HTTPS certificates via cert-manager, with automated renewal.
+- Non-root application container (UID `10001`, `runAsNonRoot` enforced).
+- Secret scanning before commits reach the remote repository (Gitleaks).
+- Local pre-commit hooks running the same checks before a push.
 
-- **Gitleaks**: Checks our local repository if any secrets has been leaked before been pushed to the remote repository.
+**Why this matters**
 
-- **Hadolint**: Lints the Dockerfile before it's built in CI.
+These controls catch problems before they reach the cluster rather than after; a leaked secret is caught locally, a vulnerable image is caught in CI, and a compromised build pipeline has no path to infrastructure because it authenticates through a separate, narrowly scoped OIDC role from the one Terraform uses.
 
-- **TFLint**: Lints Terraform code as part of the plan workflow..
+### CI/CD Pipeline
 
+GitHub Actions automates delivery:
 
-## GitOps Workflow
+- Terraform: format check, TFLint, `validate`, and a Trivy IaC scan, with the plan posted as a PR comment
+- Apply on merge to `main`; destroy is manual-dispatch only, gated behind a typed confirmation
+- Docker: Hadolint, build with layer caching, Trivy image scan, push to ECR tagged by commit SHA
+- The build workflow commits the new image tag and digest back into the Memos chart's `values.yaml`, which Argo CD then picks up and syncs automatically
+- Authentication to AWS throughout is via GitHub's OIDC integration, using separate roles for the Terraform and image-build workflows
 
-## CICD Pipeline
+**Why this matters**
 
-## Observablity
-
-## Security
-
-## Key Technical Decisions
+There is no manual deployment step anywhere in this pipeline. A merge to `main` is the only action a human takes; everything from validation through to the running pod is automated and auditable from the commit history.
 
 ## Known Limitations and Future Improvements
+
+# Known Limitations and Future Improvements
+
+## Known Limitations
+
+- **`t3.small` node instance type caps pod density at 11 per node.** Four unavoidable per-node system DaemonSets already consume a meaningful share of that before any workload is scheduled — this caused a real incident where a DaemonSet pod stayed `Pending` indefinitely because it was pinned to one specific, full node.
+- **Spot instances carry interruption risk for stateful workloads.** A Spot interruption during this project took a node `NotReady` while it hosted `external-secrets-webhook`, briefly failing every ExternalSecret operation cluster-wide.
+- **Single NAT Gateway is a cost trade-off, not a resilience one.** All three AZs' egress crosses AZ boundaries to reach it; an outage in its AZ would take down cluster-wide egress. VPC endpoints for S3, STS, and ECR soften this but don't eliminate it.
+- **RDS is single-AZ, not Multi-AZ.** No automatic failover if the instance's AZ has an outage.
+- **RDS endpoint is hardcoded in the ExternalSecret's DSN template**, not read from Secrets Manager — the RDS-managed secret only contains username and password, not connection details.
+- **Wildcard IAM actions remain on the Terraform OIDC role** (`iam:*`, `ec2:*`, etc.), accepted as short-term technical debt with an explicit intent to narrow, not yet done.
+- **No `letsencrypt-staging` ClusterIssuer.** Production-only by choice, which means every certificate debugging attempt draws against Let's Encrypt's production rate limit rather than a disposable staging one.
+- **No multi-environment separation.** The CI/CD pipeline is scaffolded for a future `staging`/`prod` split but currently runs `dev`-only.
+- **No SSM access on worker nodes**, so a node-level failure (like the unexplained Spot `NotReady` incident) can't be investigated at the kubelet log level.
+- **`external-secrets-cert-controller` persistently reports `0/1 Ready`** — a known readiness-probe quirk in that sub-deployment, confirmed non-blocking but not resolved.
+
+# Known Limitations and Future Improvements
+
+## Known Limitations
+
+- **`t3.small` node instance type caps pod density at 11 per node.** Four unavoidable per-node system DaemonSets already eat into that before any real workload gets scheduled. This caused an actual incident: a DaemonSet pod sat `Pending` indefinitely because it was pinned to one specific node that was already full.
+
+- **Spot instances carry interruption risk for stateful workloads.** A Spot interruption took a node `NotReady` while it happened to be hosting `external-secrets-webhook`, which briefly broke every ExternalSecret operation cluster-wide until it rescheduled.
+
+- **Single NAT Gateway is a cost decision, not a resilience one.** All three AZs route their egress through it, so an outage in its AZ takes down egress for the whole cluster. VPC endpoints for S3, STS, and ECR reduce reliance on it but don't remove the risk.
+
+- **RDS runs single-AZ, not Multi-AZ.** No automatic failover if that AZ has a problem.
+
+- **The RDS endpoint is hardcoded in the ExternalSecret's DSN template rather than pulled from Secrets Manager.** The RDS-managed secret only stores username and password, not connection details.
+
+- **Wildcard IAM actions are still on the Terraform OIDC role** (`iam:*`, `ec2:*`). Accepted as deliberate short-term debt, narrowing hasn't happened yet.
+
+- **No multi-environment separation yet.** The pipeline is scaffolded for staging/prod but only runs against dev right now.
+
+- **No SSM access on worker nodes**, so a node-level failure like the unexplained Spot `NotReady` incident can't be investigated at the kubelet level.
+
+- **Node scaling is manual.** Capacity issues during this project were resolved by adding nodes by hand rather than the cluster reacting on its own via karpenter.
+
+
+## Future Improvements
+
+- Right-size resource requests and limits using real Prometheus data instead of the estimates currently in place.
+
+- Add `LimitRange` and `ResourceQuota` per namespace, neither of which exist yet.
+
+- Build out NetworkPolicies, default-deny per namespace with explicit allows for the ingress path, Memos to RDS, and DNS. Right now the pod network is wide open.
+
+- Move Pod Security Standards from nothing to `baseline`, then tighten toward `restricted`, starting with Memos since it already runs non-root.
+
+- Add PodDisruptionBudgets for Traefik and cert-manager, and spread Traefik across AZs with `topologySpreadConstraints`. There's currently no guarantee against losing every ingress replica to a single AZ.
+
+- Rebalance the node group across AZs. It's currently skewed, which makes any AZ-pinned PVC a single point of failure.
+
+- Narrow the wildcard IAM actions on the Terraform role down to what each workflow actually needs.
+
+- Replace the manually-scaled managed node group with Karpenter, so the cluster provisions and right-sizes nodes automatically based on actual pending pod requirements. This would directly solve the `t3.small` pod density problem this project hit, since Karpenter can pick an appropriately sized instance per workload rather than committing to one instance type for the whole node group up front.
 
 ## Repository layout
 ```
